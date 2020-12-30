@@ -4,7 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
+import java.util.ArrayList;
+import java.sql.Date;
 
 import daoInterfaces.AlbumDao;
 import model.Album;
@@ -59,5 +60,42 @@ public class AlbumJDBC implements AlbumDao
 		album.setArtist(artist);
 		
 		return album;
+	}
+
+	@Override
+	public ArrayList<Album> getAlbums(String name) throws SQLException 
+	{
+		String query = "select album.albumid, name, numberofsongs, releasedate, label, users, artist_album.artist "
+				+ "from album "
+				+ "inner join artist_album "
+				+ "on album.albumid = artist_album.album "
+				+ "where name = ?";
+		
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, name);
+		ResultSet result = statment.executeQuery();
+		
+		ArrayList<Album> albums = new ArrayList<Album>();
+		while(result.next())
+		{
+			albums.add(buildAlbum(result));
+		}
+		
+		result.close();
+		statment.close();
+		return albums;
+	}
+
+	@Override
+	public void insertAlbum(Album album, String userNickname) throws SQLException 
+	{
+		String query = "insert into album(name,releaseDate, label, users) values (?,?,?,?)";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, album.getName());
+		statment.setDate(2, album.getReleaseDate());
+		statment.setString(3, album.getLabel());
+		statment.setString(4, userNickname);
+		
+		
 	}
 }

@@ -5,9 +5,11 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import daoInterfaces.AlbumDao;
+import daoInterfaces.ArtistDao;
 import daoInterfaces.SongDao;
 import daoInterfaces.UserDao;
 import jdbcModels.AlbumJDBC;
+import jdbcModels.ArtistJDBC;
 import jdbcModels.SongJDBC;
 import jdbcModels.UserJDBC;
 
@@ -54,5 +56,10 @@ public class DatabaseManager
 	public AlbumDao getAlbumDao()
 	{
 		return new AlbumJDBC(connection);
+	}
+	
+	public ArtistDao getArtistDao()
+	{
+		return new ArtistJDBC(connection);
 	}
 }

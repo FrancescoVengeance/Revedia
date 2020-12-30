@@ -32,14 +32,7 @@ public class SongJDBC implements SongDao
 		ResultSet result = statment.executeQuery();
 		while(result.next())
 		{
-			try 
-			{
-				songs.add(buildSong(result));
-			} 
-			catch (Exception e) 
-			{
-				e.printStackTrace();
-			}
+			songs.add(buildSong(result));
 		}
 		
 		statment.close();
@@ -54,7 +47,7 @@ public class SongJDBC implements SongDao
 		return null;
 	}
 	
-	private static Song buildSong(ResultSet result) throws Exception
+	private static Song buildSong(ResultSet result) throws SQLException
 	{
 		String songName = result.getString("songname");
 		String albumName = result.getString("albumname");
@@ -64,7 +57,7 @@ public class SongJDBC implements SongDao
 		String user = result.getString("users");
 		float length = result.getFloat("length");
 		
-		Song song = Song.class.getDeclaredConstructor().newInstance();
+		Song song = new Song();
 		song.setName(songName);
 		song.setAlbum(new Pair<Integer, String>(albumid, albumName));
 		song.setLink(link);

@@ -1,10 +1,10 @@
 package model;
 
-import java.util.Date;
+import java.sql.Date;
 
 public class Album 
 {
-	private int id;
+	private int id = 0;
 	private String name;
 	private short numberOfSongs;
 	private Date releaseDate;
@@ -25,7 +25,7 @@ public class Album
 	public void setNumberOfSongs(short numberOfSongs) { this.numberOfSongs = numberOfSongs; }
 
 	public Date getReleaseDate() { return releaseDate; }
-	public void setReleaseDate(Date releaseDate) { this.releaseDate = releaseDate; }
+	public void setReleaseDate(Date releaseDate2) { this.releaseDate = releaseDate2; }
 
 	public String getLabel() { return label; }
 	public void setLabel(String label) { this.label = label; }
