@@ -1,12 +1,14 @@
 package model;
 
+import utilities.Permissions;
+
 public class User 
 {
 	private String nickname;
 	private String firstName;
 	private String lastName;
 	private String mail;
-	private String permissions;
+	private Permissions permissions;
 	
 	public User() { super(); }
 	
@@ -22,8 +24,8 @@ public class User
 	public String getMail() { return mail; }
 	public void setMail(String mail) { this.mail = mail; }
 
-	public String getPermissions() { return permissions; }
-	public void setPermissions(String permissions) { this.permissions = permissions; }
+	public Permissions getPermissions() { return permissions; }
+	public void setPermissions(Permissions permissions) { this.permissions = permissions; }
 }
 
 

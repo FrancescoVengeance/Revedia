@@ -95,7 +95,7 @@ public class AlbumJDBC implements AlbumDao
 		statment.setDate(2, album.getReleaseDate());
 		statment.setString(3, album.getLabel());
 		statment.setString(4, userNickname);
-		
-		
+		statment.execute();
+		statment.close();
 	}
 }
