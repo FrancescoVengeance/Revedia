@@ -66,4 +66,48 @@ public class SongJDBC implements SongDao
 		song.setLength(length);
 		return song;
 	}
+
+	@Override
+	public void insertSong(Song song, String userNickname) throws SQLException 
+	{
+		String query = "insert into song(name, album, link, decription, users, length) values (?,?,?,?,?,?) ";
+		
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, song.getName());
+		statment.setInt(2, song.getAlbum().key);
+		statment.setString(3, song.getLink());
+		statment.setString(4, song.getDescription());
+		statment.setString(5, userNickname);
+		statment.setFloat(6, song.getLength());
+		
+		statment.execute();
+		statment.close();
+	}
+
+	@Override
+	public void updateSong(Song song) throws SQLException 
+	{
+		String query = "update song set album = ?, link = ?, decription = ?, length = ? where name = ? and album = ?";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setInt(1, song.getAlbum().key);
+		statment.setString(2, song.getLink());
+		statment.setString(3, song.getDescription());
+		statment.setFloat(4, song.getLength());
+		statment.setString(5, song.getName());
+		statment.setInt(6, song.getAlbum().key);
+		
+		statment.executeUpdate();
+		statment.close();
+	}
+
+	@Override
+	public void deleteSong(Song song) throws SQLException 
+	{
+		String query = "delete from song where name = ? and album = ?";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, song.getName());
+		statment.setInt(2, song.getAlbum().key);
+		statment.execute();
+		statment.close();
+	}
 }
