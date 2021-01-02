@@ -107,8 +107,36 @@ public class BookJDBC implements BookDao
 	@Override
 	public void insertBook(Book book) throws SQLException
 	{
-		// TODO Auto-generated method stub
-
+		String query = "insert into book(title, numberofpages,description,link,publishingHouse,users) values(?,?,?,?,?)";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, book.getTitle());
+		statment.setShort(2, book.getNumberOfPages());
+		statment.setString(3, book.getDescription());
+		statment.setString(4, book.getLink());
+		statment.setString(5, book.getPublishingHouse());
+		statment.setString(6, book.getUser());
+		statment.execute();
+		statment.close();
+		
+		query = "insert into artist_book(artist, book) values(?,?)";
+		statment = connection.prepareStatement(query);
+		for(String artist : book.getAutors())
+		{
+			statment.setString(1, artist);
+			statment.setString(2, book.getTitle());
+			statment.execute();
+		}
+		statment.close();
+		
+		query = "insert into genre_book(genre, book) values (?,?)";
+		statment = connection.prepareStatement(query);
+		for(String genre : book.getGenres())
+		{
+			statment.setString(1, genre);
+			statment.setString(2, book.getTitle());
+			statment.execute();
+		}
+		statment.close();
 	}
 
 	@Override
