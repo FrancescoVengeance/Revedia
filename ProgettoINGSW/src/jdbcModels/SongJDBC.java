@@ -31,11 +31,12 @@ public class SongJDBC implements SongDao
 		Connection connection = this.dataSource.getConnection();
 
 		String query = "select album.albumid, song.name as songname, album.name as albumname, song.link, song.decription, song.users, song.length"
-				+ " from song" + " inner join album" + " on song.album = album.albumid";
+				+ " from song" + " inner join album" + " on song.album = album.albumid" + " where song.name = ?";
 
 		ArrayList<Song> songs = new ArrayList<Song>();
 
 		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, name);
 		ResultSet result = statment.executeQuery();
 		while (result.next())
 		{
@@ -45,14 +46,38 @@ public class SongJDBC implements SongDao
 		statment.close();
 		result.close();
 		connection.close();
+
 		return songs;
 	}
 
 	@Override
-	public Song getSong(String name, String artist)
+	public Song findByPrimaryKey(String name, int albumKey) throws SQLException
 	{
-		String query = "";
-		return null;
+		Connection connection = this.dataSource.getConnection();
+
+		String query = "select album.albumid, song.name as songname, album.name as albumname, song.link, song.decription, song.users, song.length"
+				+ " from song" + " inner join album" + " on song.album = album.albumid"
+				+ " where song.name = ? and song.album = ?";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, name);
+		statment.setInt(2, albumKey);
+		ResultSet result = statment.executeQuery();
+
+		connection.close();
+		Song song = null;
+		while (result.next())
+		{
+			song = buildSong(result);
+		}
+
+		if (song != null)
+		{
+			return song;
+		} else
+		{
+			throw new RuntimeException("No song in this album with this name");
+		}
+
 	}
 
 	private static Song buildSong(ResultSet result) throws SQLException
@@ -129,7 +154,7 @@ public class SongJDBC implements SongDao
 	}
 
 	@Override
-	public Song findByPrimaryKey(String nome)
+	public Song getSongByArtist(String name, String artist)
 	{
 		// TODO Auto-generated method stub
 		return null;
