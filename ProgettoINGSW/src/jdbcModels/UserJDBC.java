@@ -4,38 +4,47 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import daoInterfaces.UserDao;
 import model.User;
 import utilities.Permissions;
 
-public class UserJDBC implements UserDao 
+public class UserJDBC implements UserDao
 {
-	private Connection connection;
-	
-	public UserJDBC(Connection connection) 
+	private DataSource dataSource;
+
+	public UserJDBC()
 	{
-		this.connection = connection;
+		super();
 	}
-	
-	
-	@Override
-	public User getUser(String nickname) throws SQLException 
+
+	public UserJDBC(DataSource dataSource)
 	{
+		super();
+		this.dataSource = dataSource;
+	}
+
+	@Override
+	public User getUser(String nickname) throws SQLException
+	{
+		Connection connection = this.dataSource.getConnection();
+
 		String query = "select nickname, firstname, lastname, mail, permissions from users where nickname = ?";
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, nickname);
-		
+
 		ResultSet result = statment.executeQuery();
 		result.next();
-		
+
 		User user = null;
 		user = buildUser(result);
-		
+
 		statment.close();
 		result.close();
+		connection.close();
 		return user;
 	}
-	
+
 	private static User buildUser(ResultSet result) throws SQLException
 	{
 		String nick = result.getString("nickname");
@@ -49,14 +58,15 @@ public class UserJDBC implements UserDao
 		user.setLastName(lastName);
 		user.setMail(mail);
 		user.setPermissions(permissions);
-		
+
 		return user;
 	}
 
-
 	@Override
-	public void updateUser(User user) throws SQLException 
+	public void updateUser(User user) throws SQLException
 	{
+		Connection connection = this.dataSource.getConnection();
+
 		String query = "update users set firstname = ?, lastname = ?, mail = ? where nickname = ?";
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, user.getFirstName());
@@ -65,12 +75,14 @@ public class UserJDBC implements UserDao
 		statment.setString(4, user.getNickname());
 		statment.executeUpdate();
 		statment.close();
+		connection.close();
 	}
 
-
 	@Override
-	public void insertUser(User user, String password) throws SQLException 
+	public void insertUser(User user, String password) throws SQLException
 	{
+		Connection connection = this.dataSource.getConnection();
+
 		String query = "insert into users(nickname, firstname, lastname, passwd, mail, permissions)"
 				+ "values (?,?,?,?,?,?)";
 		PreparedStatement statment = connection.prepareStatement(query);
@@ -82,20 +94,22 @@ public class UserJDBC implements UserDao
 		statment.setString(6, Permissions.STANDARD.toString());
 		statment.execute();
 		statment.close();
+		connection.close();
 	}
 
-
 	@Override
-	public void deleteUser(String nickname) throws SQLException 
+	public void deleteUser(String nickname) throws SQLException
 	{
-			
+
 	}
 
-
 	@Override
-	public boolean changePassword(String oldPassword, String newPassword, String nickname, String mail) throws SQLException
+	public boolean changePassword(String oldPassword, String newPassword, String nickname, String mail)
+			throws SQLException
 	{
-		if(validateLogin(oldPassword, nickname, mail))
+		Connection connection = this.dataSource.getConnection();
+
+		if (validateLogin(oldPassword, nickname, mail))
 		{
 			String query = "update users set passwd = ? where nickname = ?";
 			PreparedStatement statment = connection.prepareStatement(query);
@@ -103,45 +117,51 @@ public class UserJDBC implements UserDao
 			statment.setString(2, nickname);
 			statment.executeUpdate();
 			statment.close();
+			connection.close();
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	@Override
-	public void changePermissions(Permissions permissions, String nickname) throws SQLException 
+	public void changePermissions(Permissions permissions, String nickname) throws SQLException
 	{
+		Connection connection = this.dataSource.getConnection();
+
 		String query = "update users set permissions = ? where nickname = ?";
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, permissions.toString());
 		statment.setString(2, nickname);
 		statment.executeUpdate();
 		statment.close();
+		connection.close();
 	}
 
-
 	@Override
-	public boolean validateLogin(String password, String nickname, String mail) throws SQLException 
+	public boolean validateLogin(String password, String nickname, String mail) throws SQLException
 	{
+		Connection connection = this.dataSource.getConnection();
+
 		String query = "select passwd from users where nickname = ? or mail = ?";
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, nickname);
 		statment.setString(2, mail);
 		ResultSet result = statment.executeQuery();
-		
-		while(result.next())
+
+		while (result.next())
 		{
-			if(result.getString("passwd").equals(password))
+			if (result.getString("passwd").equals(password))
 			{
 				statment.close();
 				result.close();
 				return true;
 			}
 		}
-		
+
 		statment.close();
 		result.close();
+		connection.close();
 		return false;
 	}
 }
