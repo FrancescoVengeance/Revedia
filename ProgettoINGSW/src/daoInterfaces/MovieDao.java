@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import model.Movie;
+import model.MovieReview;
 
 public interface MovieDao
 {
@@ -12,4 +13,5 @@ public interface MovieDao
 	public void insertMovie(Movie movie) throws SQLException;
 	public void deleteMovie() throws SQLException;
 	public void updateMovie() throws SQLException;
+	public ArrayList<MovieReview> getReviews(Movie movie) throws SQLException;
 }

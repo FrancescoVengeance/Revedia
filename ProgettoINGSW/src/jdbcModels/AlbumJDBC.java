@@ -9,6 +9,8 @@ import java.sql.Date;
 
 import daoInterfaces.AlbumDao;
 import model.Album;
+import model.AlbumReview;
+import utilities.Pair;
 
 public class AlbumJDBC implements AlbumDao 
 {
@@ -97,5 +99,41 @@ public class AlbumJDBC implements AlbumDao
 		statment.setString(4, userNickname);
 		statment.execute();
 		statment.close();
+	}
+
+	@Override
+	public ArrayList<AlbumReview> getReviews(Album album) throws SQLException
+	{
+		String query = "select users, album, numberofStars, description "
+				+ "from album_review "
+				+ "and album = ?";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setInt(1, album.getId());
+		ResultSet result = statment.executeQuery();
+		
+		ArrayList<AlbumReview> reviews = new ArrayList<AlbumReview>();
+		while(result.next())
+		{
+			reviews.add(buildReview(result));
+		}
+		
+		result.close();
+		statment.close();
+		return reviews;
+	}
+
+	private AlbumReview buildReview(ResultSet result) throws SQLException
+	{
+		String user = result.getString("users");
+		int album = result.getInt("album");
+		short numberOfStars = result.getShort("numberOfStars");
+		String description = result.getString("description");
+		
+		AlbumReview review = new AlbumReview();
+		review.setPrimaryKey(new Pair<String, Integer>(user, album));
+		review.setNumberOfStars(numberOfStars);
+		review.setDescription(description);
+		
+		return review;
 	}
 }

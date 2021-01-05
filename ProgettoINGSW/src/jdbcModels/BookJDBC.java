@@ -8,6 +8,8 @@ import java.util.ArrayList;
 
 import daoInterfaces.BookDao;
 import model.Book;
+import model.BookReview;
+import utilities.Pair;
 
 public class BookJDBC implements BookDao
 {
@@ -166,5 +168,42 @@ public class BookJDBC implements BookDao
 		book.getGenres().add(genre);
 		
 		return book;
+	}
+
+	@Override
+	public ArrayList<BookReview> getReviews(Book book) throws SQLException
+	{
+		String query = "select users, book, numberofstars, description "
+				+ "from book_review "
+				+ "where book = ?";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, book.getTitle());
+		ResultSet result = statment.executeQuery();
+		
+		ArrayList<BookReview> reviews = new ArrayList<BookReview>();
+		while(result.next())
+		{
+			reviews.add(buildReview(result));
+		}
+		
+		statment.close();
+		result.close();
+		
+		return reviews;
+	}
+
+	private BookReview buildReview(ResultSet result) throws SQLException
+	{
+		String user = result.getString("users");
+		String book = result.getString("book");
+		short numberOfStars = result.getShort("numberofstars");
+		String description = result.getString("description");
+		
+		BookReview review = new BookReview();
+		review.setPrimaryKey(new Pair<String, String>(user,book));
+		review.setDescription(description);
+		review.setNumberOfStars(numberOfStars);
+		
+		return review;
 	}
 }

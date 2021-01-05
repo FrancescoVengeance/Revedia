@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import model.Song;
+import model.SongReview;
 
 public interface SongDao 
 {
@@ -13,4 +14,5 @@ public interface SongDao
 	public void updateSong(Song song) throws SQLException;
 	public void deleteSong(Song song) throws SQLException;
 	public Song findByPrimaryKey(String name, int albumKey) throws SQLException;
+	public ArrayList<SongReview> getReviews(Song song) throws SQLException;
 }

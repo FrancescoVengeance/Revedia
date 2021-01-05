@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import daoInterfaces.SongDao;
 import model.Song;
+import model.SongReview;
 import utilities.Pair;
 
 public class SongJDBC implements SongDao 
@@ -134,5 +135,46 @@ public class SongJDBC implements SongDao
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public ArrayList<SongReview> getReviews(Song song) throws SQLException
+	{
+		String query = "select users, song, album, numberofstars, description "
+				+ "from song_review "
+				+ "where song = ? and album = ?";
+		
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, song.getName());
+		statment.setInt(2,song.getAlbum().key);
+		
+		ResultSet result = statment.executeQuery();
+		ArrayList<SongReview> reviews = new ArrayList<SongReview>();
+		while(result.next())
+		{
+			reviews.add(buildSongReview(result));
+		}
+		
+		result.close();
+		statment.close();
+		
+		return reviews;
+	}
+	
+	private SongReview buildSongReview(ResultSet result) throws SQLException
+	{
+		String user = result.getString("users");
+		String songTitle = result.getString("song");
+		int album = result.getInt("album");
+		short numberOfStars = result.getShort("numberofstars");
+		String description = result.getString("description");
+		
+		SongReview review = new SongReview();
+		review.setUser(user);
+		review.setSongKey(new Pair<String,Integer>(songTitle, album));
+		review.setNumberOfStars(numberOfStars);
+		review.setDescription(description);
+		
+		return review;
 	}
 }

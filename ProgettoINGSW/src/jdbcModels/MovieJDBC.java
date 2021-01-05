@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import daoInterfaces.MovieDao;
 import model.Movie;
+import model.MovieReview;
+import utilities.Pair;
 
 public class MovieJDBC implements MovieDao
 {
@@ -138,5 +140,42 @@ public class MovieJDBC implements MovieDao
 		
 		return genres;
 		
+	}
+
+	@Override
+	public ArrayList<MovieReview> getReviews(Movie movie) throws SQLException
+	{
+		String query = "select users, movie, numberofstars, description "
+				+ "from movie_review "
+				+ "where movie = ?";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, movie.getTitle());
+		ResultSet result = statment.executeQuery();
+		
+		ArrayList<MovieReview> reviews = new ArrayList<MovieReview>();
+		while(result.next())
+		{
+			reviews.add(buildReview(result));
+		}
+		
+		result.close();
+		statment.close();
+		
+		return reviews;
+	}
+
+	private MovieReview buildReview(ResultSet result) throws SQLException
+	{
+		String user = result.getString("users");
+		String movie = result.getString("movie");
+		short numberOfStars = result.getShort("numberofstars");
+		String description = result.getString("description");
+		
+		MovieReview review = new MovieReview();
+		review.setPrimaryKey(new Pair<String, String>(user, movie));
+		review.setNumberOfStars(numberOfStars);
+		review.setDescription(description);
+		
+		return review;
 	}
 }
