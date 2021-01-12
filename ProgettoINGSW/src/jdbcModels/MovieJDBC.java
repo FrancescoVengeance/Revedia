@@ -23,7 +23,7 @@ public class MovieJDBC implements MovieDao
 	@Override
 	public Movie getMovie(String title) throws SQLException
 	{
-		String query = "select select title, length, description, link, users from movie where title = ?";
+		String query = "select select title, length, description, link, users, rating from movie where title = ?";
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, title);
 		ResultSet result = statment.executeQuery();
@@ -44,7 +44,7 @@ public class MovieJDBC implements MovieDao
 	@Override
 	public ArrayList<Movie> getMoviesByGenre(String genre) throws SQLException
 	{
-		String query = "select distinct title, length, description, link, users "
+		String query = "select distinct title, length, description, link, users, rating "
 				+ "from movie "
 				+ "inner join genre_movie "
 				+ "on movie.title = genre_movie.movie "
@@ -112,6 +112,7 @@ public class MovieJDBC implements MovieDao
 		String description = result.getString("description");
 		String link = result.getString("link");
 		String user = result.getString("users");
+		float rating = result.getFloat("rating");
 		
 		Movie movie = new Movie();
 		movie.setTitle(title);
@@ -120,6 +121,7 @@ public class MovieJDBC implements MovieDao
 		movie.setLink(link);
 		movie.setUser(user);
 		movie.setGenres(getGenres(title));
+		movie.setRating(rating);
 		
 		return movie;
 	}
@@ -177,5 +179,30 @@ public class MovieJDBC implements MovieDao
 		review.setDescription(description);
 		
 		return review;
+	}
+
+	@Override
+	public ArrayList<Movie> searchByKeyWords(String keyWords, int limit, int offset) throws SQLException
+	{
+		String query = "select title, length, description, link, users, rating"
+				     + "from movie "
+				     + "where title similar to ? "
+				     + "limit ? offset ?";
+		
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, keyWords);
+		statment.setInt(2, limit);
+		statment.setInt(3, offset);
+		
+		ResultSet result = statment.executeQuery();
+		ArrayList<Movie> movies = new ArrayList<Movie>();
+		
+		while(result.next())
+			movies.add(buildMovie(result));
+		
+		result.close();
+		statment.close();
+		
+		return movies;
 	}
 }

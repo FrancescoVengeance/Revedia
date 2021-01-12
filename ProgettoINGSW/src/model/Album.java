@@ -12,7 +12,9 @@ public class Album
 	private String user;
 	private String artist;
 	private String genre;
+	private float rating;
 	
+
 	public Album() { super(); }
 
 	public int getId() { return id; }
@@ -38,6 +40,9 @@ public class Album
 	
 	public String getGenre() { return genre; }
 	public void setGenre(String genre) { this.genre = genre; }
+	
+	public float getRating() { return rating; }
+	public void setRating(float rating) { this.rating = rating; }
 }
 
 /*create table if not exists album

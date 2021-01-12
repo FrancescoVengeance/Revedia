@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import model.Movie;
 import model.MovieReview;
+import model.Song;
 
 public interface MovieDao
 {
@@ -14,4 +15,5 @@ public interface MovieDao
 	public void deleteMovie() throws SQLException;
 	public void updateMovie() throws SQLException;
 	public ArrayList<MovieReview> getReviews(Movie movie) throws SQLException;
+	public ArrayList<Movie> searchByKeyWords(String keyWords, int limit, int offset) throws SQLException;
 }

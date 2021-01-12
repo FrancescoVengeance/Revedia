@@ -23,7 +23,7 @@ public class BookJDBC implements BookDao
 	@Override
 	public Book getBook(String title) throws SQLException
 	{
-		String query = "select title, numberOfPages, description, link, publishinghouse, artist, genre "
+		String query = "select title, numberOfPages, description, link, publishinghouse, artist, genre, rating "
 				+ "from book "
 				+ "inner join artist_book on artist_book.book = book.title "
 				+ "inner join genre_book on genre_book.book = book.title "
@@ -47,7 +47,7 @@ public class BookJDBC implements BookDao
 	@Override
 	public ArrayList<Book> getBooksByPublisher(String publisher) throws SQLException
 	{
-		String query = "select title, numberOfPages, description, link, publishinghouse, artist, genre "
+		String query = "select title, numberOfPages, description, link, publishinghouse, artist, genre, rating "
 				+ "from book "
 				+ "inner join artist_book on artist_book.book = book.title "
 				+ "inner join genre_book on genre_book.book = book.title "
@@ -71,7 +71,7 @@ public class BookJDBC implements BookDao
 	@Override
 	public ArrayList<Book> getBooksByArtist(String artist) throws SQLException
 	{
-		String query = "select title, numberOfPages, description, link, publishinghouse, artist, genre "
+		String query = "select title, numberOfPages, description, link, publishinghouse, artist, genre, rating "
 				+ "from book "
 				+ "inner join artist_book on artist_book.book = book.title "
 				+ "inner join genre_book on genre_book.book = book.title "
@@ -157,6 +157,7 @@ public class BookJDBC implements BookDao
 		String publishingHouse = result.getString("publishinghouse");
 		String artist = result.getString("artist");
 		String genre = result.getString("genre");
+		float rating = result.getFloat("rating");
 		
 		Book book = new Book();
 		book.setTitle(title);
@@ -166,6 +167,7 @@ public class BookJDBC implements BookDao
 		book.setPublishingHouse(publishingHouse);
 		book.getAutors().add(artist);
 		book.getGenres().add(genre);
+		book.setRating(rating);
 		
 		return book;
 	}
@@ -205,5 +207,32 @@ public class BookJDBC implements BookDao
 		review.setNumberOfStars(numberOfStars);
 		
 		return review;
+	}
+
+	@Override
+	public ArrayList<Book> searchByKeyWords(String keyWords, int limit, int offset) throws SQLException
+	{
+		String query = "select title, numberOfPages, description, link, publishinghouse, artist, genre, rating "
+				+ "from book "
+				+ "inner join artist_book on artist_book.book = book.title "
+				+ "inner join genre_book on genre_book.book = book.title "
+				+ "where title similar to ? "
+				+ "limit ? offset ?";
+		
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, keyWords);
+		statment.setInt(2, limit);
+		statment.setInt(3, offset);
+	
+		ResultSet result = statment.executeQuery();
+		
+		ArrayList<Book> books = new ArrayList<Book>();
+		while(result.next())
+			books.add(buildBook(result));
+		
+		result.close();
+		statment.close();
+		
+		return books;
 	}
 }

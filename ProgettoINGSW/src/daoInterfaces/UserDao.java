@@ -14,4 +14,11 @@ public interface UserDao
 	public boolean changePassword(String oldPassword, String newPassword, String nickname, String mail) throws SQLException;
 	public void changePermissions(Permissions permissions, String nickname) throws SQLException;
 	public boolean validateLogin(String password, String nickname, String mail) throws SQLException;
+	//inserire l'insert delle reviews negli altri dao
+	//get recensioni in utente
+	//alter table libro, film, album, song aggiungere la data di inserimento
+	
+//	select * 
+//	from song
+//	where song.name similar to '%(^z|t)%';
 }

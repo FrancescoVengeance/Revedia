@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.sql.Date;
 
 import daoInterfaces.AlbumDao;
+import database.DatabaseManager;
 import model.Album;
 import model.AlbumReview;
 import utilities.Pair;
@@ -24,7 +25,7 @@ public class AlbumJDBC implements AlbumDao
 	@Override
 	public Album getAlbum(Integer id) throws SQLException 
 	{
-		String query = "select album.albumid, name, numberofsongs, releasedate, label, users, artist_album.artist "
+		String query = "select album.albumid, name, numberofsongs, releasedate, label, users, artist_album.artist, album.rating "
 				+ "from album "
 				+ "inner join artist_album "
 				+ "on album.albumid = artist_album.album "
@@ -51,6 +52,7 @@ public class AlbumJDBC implements AlbumDao
 		String label = result.getString("label");
 		String user = result.getString("users");
 		String artist = result.getString("artist");
+		float rating = result.getFloat("rating");
 		
 		Album album = new Album();
 		album.setId(albumId);
@@ -60,6 +62,7 @@ public class AlbumJDBC implements AlbumDao
 		album.setLabel(label);
 		album.setUser(user);
 		album.setArtist(artist);
+		album.setRating(rating);
 		
 		return album;
 	}
@@ -67,7 +70,7 @@ public class AlbumJDBC implements AlbumDao
 	@Override
 	public ArrayList<Album> getAlbums(String name) throws SQLException 
 	{
-		String query = "select album.albumid, name, numberofsongs, releasedate, label, users, artist_album.artist "
+		String query = "select album.albumid, name, numberofsongs, releasedate, label, users, artist_album.artist, album.rating "
 				+ "from album "
 				+ "inner join artist_album "
 				+ "on album.albumid = artist_album.album "
@@ -133,7 +136,34 @@ public class AlbumJDBC implements AlbumDao
 		review.setPrimaryKey(new Pair<String, Integer>(user, album));
 		review.setNumberOfStars(numberOfStars);
 		review.setDescription(description);
-		
+				
 		return review;
+	}
+
+	@Override
+	public ArrayList<Album> searchByKeyWords(String keyWords, int limit, int offset) throws SQLException
+	{
+		String query = "select album.albumid, name, numberofsongs, releasedate, label, users, artist_album.artist, album.rating "
+				+ "from album "
+				+ "inner join artist_album "
+				+ "on album.albumid = artist_album.album "
+				+ "where name similar to ? "
+				+ "limit ? offset ?";
+	
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, keyWords);
+		statment.setInt(2, limit);
+		statment.setInt(3, offset);
+	
+		ResultSet result = statment.executeQuery();
+		ArrayList<Album> albums = new ArrayList<Album>();
+		
+		while(result.next())
+			albums.add(buildAlbum(result));
+		
+		result.close();
+		statment.close();
+		
+		return albums;
 	}
 }

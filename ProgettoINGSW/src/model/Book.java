@@ -12,6 +12,7 @@ public class Book
 	private String link;
 	private ArrayList<String> autors;
 	private ArrayList<String> genres;
+	private float rating;
 	
 	public Book() 
 	{
@@ -57,4 +58,7 @@ public class Book
 
 	public ArrayList<String> getGenres() { return genres; }
 	public void setGenres(ArrayList<String> genres) { this.genres = genres; }
+	
+	public float getRating() { return rating; }
+	public void setRating(float rating) { this.rating = rating; }
 }

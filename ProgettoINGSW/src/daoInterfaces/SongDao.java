@@ -15,4 +15,5 @@ public interface SongDao
 	public void deleteSong(Song song) throws SQLException;
 	public Song findByPrimaryKey(String name, int albumKey) throws SQLException;
 	public ArrayList<SongReview> getReviews(Song song) throws SQLException;
+	public ArrayList<Song> searchByKeyWords(String keyWords, int limit, int offset) throws SQLException;
 }

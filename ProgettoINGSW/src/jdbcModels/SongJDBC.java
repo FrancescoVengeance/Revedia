@@ -5,6 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+
+import com.sun.net.httpserver.Authenticator.Result;
+
 import daoInterfaces.SongDao;
 import model.Song;
 import model.SongReview;
@@ -22,7 +25,8 @@ public class SongJDBC implements SongDao
 	@Override
 	public ArrayList<Song> getSong(String name) throws SQLException 
 	{
-		String query = "select album.albumid, song.name as songname, album.name as albumname, song.link, song.decription, song.users, song.length"
+		String query = "select album.albumid, song.name as songname, album.name as albumname,"
+				+ " song.link, song.decription, song.users, song.length, song.rating"
 				+ " from song"
 				+ " inner join album"
 				+ " on song.album = album.albumid"
@@ -46,7 +50,8 @@ public class SongJDBC implements SongDao
 	@Override
 	public Song findByPrimaryKey(String name, int albumKey) throws SQLException 
 	{
-		String query = "select album.albumid, song.name as songname, album.name as albumname, song.link, song.decription, song.users, song.length"
+		String query = "select album.albumid, song.name as songname, album.name as albumname,"
+				+ " song.link, song.decription, song.users, song.length, song.rating"
 				+ " from song"
 				+ " inner join album"
 				+ " on song.album = album.albumid"
@@ -75,6 +80,7 @@ public class SongJDBC implements SongDao
 		String description = result.getString("decription");
 		String user = result.getString("users");
 		float length = result.getFloat("length");
+		float rating = result.getFloat("rating");
 		
 		Song song = new Song();
 		song.setName(songName);
@@ -83,6 +89,7 @@ public class SongJDBC implements SongDao
 		song.setDescription(description);
 		song.setUser(user);
 		song.setLength(length);
+		song.setRating(rating);
 		return song;
 	}
 
@@ -176,5 +183,47 @@ public class SongJDBC implements SongDao
 		review.setDescription(description);
 		
 		return review;
+	}
+
+	@Override
+	public ArrayList<Song> searchByKeyWords(String keyWords,int limit, int offset) throws SQLException
+	{
+		String query = "select album.albumid, song.name as songname, album.name as albumname,song.users, song.rating"
+				+ " from song"
+				+ " inner join album"
+				+ " on song.album = album.albumid"
+				+ " where songname similar to ? or albumname similar to ?"
+				+ " limit ? offset ?";
+		
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, keyWords);
+		statment.setString(2, keyWords);
+		statment.setInt(3, limit);
+		statment.setInt(4, offset);
+		
+		ResultSet result = statment.executeQuery();
+		
+		ArrayList<Song> songs = new ArrayList<Song>();
+		while(result.next())
+		{
+			String songName = result.getString("songname");
+			String albumName = result.getString("albumname");
+			int albumid = result.getInt("albumid");
+			String user = result.getString("users");
+			float rating = result.getFloat("rating");
+			
+			Song song = new Song();
+			song.setName(songName);
+			song.setAlbum(new Pair<Integer, String>(albumid, albumName));
+			song.setUser(user);
+			song.setRating(rating);
+			
+			songs.add(song);
+		}
+		
+		result.close();
+		statment.close();
+		
+		return songs;
 	}
 }

@@ -10,7 +10,8 @@ public class Song
 	private String link;
 	private String description;
 	private String user;
-	//aggiungere genere
+	private String genre;
+	private float rating;
 	
 	public Song() {}
 
@@ -31,4 +32,10 @@ public class Song
 
 	public String getUser() { return user; }
 	public void setUser(String user) { this.user = user; }
+	
+	public float getRating() { return rating; }
+	public void setRating(float rating) { this.rating = rating; }
+
+	public String getGenre() { return genre; }
+	public void setGenre(String genre) { this.genre = genre; }
 }
