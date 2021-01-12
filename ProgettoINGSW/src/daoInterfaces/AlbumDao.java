@@ -14,4 +14,5 @@ public interface AlbumDao
 	public void insertAlbum(Album album, String userNickname) throws SQLException;
 	public ArrayList<AlbumReview> getReviews(Album album) throws SQLException;
 	public ArrayList<Album> searchByKeyWords(String keyWords, int limit, int offset) throws SQLException;
+	public void addReview(AlbumReview review) throws SQLException;
 }

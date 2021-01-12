@@ -235,4 +235,17 @@ public class BookJDBC implements BookDao
 		
 		return books;
 	}
+
+	@Override
+	public void addReview(BookReview review) throws SQLException
+	{
+		String query = "insert into book_review(users,book,numberofstars,description) values(?,?,?,?)";
+		PreparedStatement statement = connection.prepareStatement(query);
+		statement.setString(1, review.getPrimaryKey().key);
+		statement.setString(2, review.getPrimaryKey().value);
+		statement.setShort(3, review.getNumberOfStars());
+		statement.setString(4, review.getDescription());
+		statement.execute();
+		statement.close();
+	}
 }

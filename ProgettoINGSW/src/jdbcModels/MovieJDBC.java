@@ -205,4 +205,17 @@ public class MovieJDBC implements MovieDao
 		
 		return movies;
 	}
+
+	@Override
+	public void addReview(MovieReview review) throws SQLException
+	{
+		String query = "insert into movie_review(users, movie, numberofstars, description) values(?,?,?,?)";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, review.getPrimaryKey().key);
+		statment.setString(2, review.getPrimaryKey().value);
+		statment.setShort(3, review.getNumberOfStars());
+		statment.setString(4, review.getDescription());
+		statment.execute();
+		statment.close();
+	}
 }

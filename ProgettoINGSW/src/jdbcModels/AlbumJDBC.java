@@ -166,4 +166,18 @@ public class AlbumJDBC implements AlbumDao
 		
 		return albums;
 	}
+
+	@Override
+	public void addReview(AlbumReview review) throws SQLException
+	{
+		String query = "insert into album_review(users, album, numberofstars, description) values(?,?,?,?)";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, review.getPrimaryKey().key);
+		statment.setInt(2, review.getPrimaryKey().value);
+		statment.setShort(3, review.getNumberOfStars());
+		statment.setString(4, review.getDescription());
+		
+		statment.execute();
+		statment.close();
+	}
 }
