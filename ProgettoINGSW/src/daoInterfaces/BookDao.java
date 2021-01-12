@@ -16,5 +16,6 @@ public interface BookDao
 	public void insertBook(Book book) throws SQLException;
 	public void deleteBook(Book book) throws SQLException;
 	public ArrayList<BookReview> getReviews(Book book) throws SQLException;
+	public void addReview(BookReview review) throws SQLException;
 	public ArrayList<Book> searchByKeyWords(String keyWords, int limit, int offset) throws SQLException;
 }

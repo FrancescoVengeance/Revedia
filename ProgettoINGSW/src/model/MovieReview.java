@@ -4,7 +4,7 @@ import utilities.Pair;
 
 public class MovieReview extends Review
 {
-	private Pair<String, String> primaryKey;
+	private Pair<String, String> primaryKey; //utente, film
 	
 	public void setPrimaryKey(Pair<String, String> primaryKey) { this.primaryKey = primaryKey; }
 	public Pair<String, String> getPrimaryKey() { return primaryKey; }

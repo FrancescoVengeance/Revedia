@@ -226,4 +226,18 @@ public class SongJDBC implements SongDao
 		
 		return songs;
 	}
+
+	@Override
+	public void addReview(SongReview review) throws SQLException
+	{
+		String query = "insert into song_review(users,song,album,numberofstars,description) values(?,?,?,?,?)";
+		PreparedStatement statement = connection.prepareStatement(query);
+		statement.setString(1, review.getUser());
+		statement.setString(2, review.getSongKey().key);
+		statement.setInt(3, review.getSongKey().value);
+		statement.setShort(4, review.getNumberOfStars());
+		statement.setString(5, review.getDescription());
+		statement.execute();
+		statement.close();
+	}
 }
