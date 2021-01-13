@@ -11,6 +11,7 @@ import daoInterfaces.AlbumDao;
 import database.DatabaseManager;
 import model.Album;
 import model.AlbumReview;
+import model.Song;
 import utilities.Pair;
 
 public class AlbumJDBC implements AlbumDao 
@@ -179,5 +180,89 @@ public class AlbumJDBC implements AlbumDao
 		
 		statment.execute();
 		statment.close();
+	}
+
+	@Override
+	public void deleteReview(String nickname, int albumId) throws SQLException
+	{
+		String query = "delete from album_review where users = ? and album = ?";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, nickname);
+		statment.setInt(2, albumId);
+		statment.execute();
+		statment.close();
+	}
+
+	@Override
+	public void updateReview(AlbumReview review) throws SQLException
+	{
+		String query = "update album_review set numberofStars = ?, description = ? "
+					 + "where users = ? and album = ?";
+		PreparedStatement statement = connection.prepareStatement(query);
+		statement.setShort(1, review.getNumberOfStars());
+		statement.setString(2, review.getDescription());
+		statement.setString(3, review.getPrimaryKey().key);
+		statement.setInt(4, review.getPrimaryKey().value);
+		statement.executeUpdate();
+		statement.close();
+	}
+
+	@Override
+	public void updateAlbum(Album album) throws SQLException
+	{
+		String query = "update album set name  = ?, releasedate = ?, label = ? where albumid = ?";
+		PreparedStatement statement = connection.prepareStatement(query);
+		statement.setString(1, album.getName());
+		statement.setDate(2, album.getReleaseDate());
+		statement.setString(3, album.getLabel());
+		statement.setInt(4, album.getId());
+		statement.executeUpdate();
+		statement.close();
+	}
+
+	@Override
+	public void deleteAlbum(int id) throws SQLException
+	{
+		String query = "delete from album where albumid = ?";
+		PreparedStatement statement = connection.prepareStatement(query);
+		statement.setInt(1, id);
+		statement.execute();
+		statement.close();
+	}
+
+	@Override
+	public ArrayList<Song> getSongs(int id) throws SQLException
+	{
+		String query = "select album.albumid, song.name as songname, album.name as albumname,"
+				+ " song.length, song.rating"
+				+ " from song"
+				+ " inner join album"
+				+ " on song.album = album.albumid"
+				+ " where albumid = ?";
+		PreparedStatement statement = connection.prepareStatement(query);
+		statement.setInt(1, id);
+		ResultSet result = statement.executeQuery();
+		ArrayList<Song> songs = new ArrayList<Song>();
+		
+		while(result.next())
+		{
+			String name = result.getString("songnname");
+			int album = result.getInt("albumid");
+			float length = result.getFloat("length");
+			float rating = result.getFloat("rating");
+			String albumname = result.getString("albumname");
+			
+			Song song = new Song();
+			song.setName(name);
+			song.setLength(length);
+			song.setRating(rating);
+			song.setAlbum(new Pair<Integer, String>(album, albumname));
+			
+			songs.add(song);
+		}
+		
+		result.close();
+		statement.close();
+		return songs;
 	}
 }

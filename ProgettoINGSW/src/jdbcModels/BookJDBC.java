@@ -248,4 +248,29 @@ public class BookJDBC implements BookDao
 		statement.execute();
 		statement.close();
 	}
+
+	@Override
+	public void deleteReview(String nickname, String title) throws SQLException
+	{
+		String query = "delete from book_review where users = ? and book = ?";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, nickname);
+		statment.setString(2, title);
+		statment.execute();
+		statment.close();
+	}
+
+	@Override
+	public void updateReview(BookReview review) throws SQLException
+	{
+		String query = "update book_review set numberofstars = ?, description = ? "
+					 + "where users = ? and book = ?";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setShort(1, review.getNumberOfStars());
+		statment.setString(2, review.getDescription());
+		statment.setString(3, review.getPrimaryKey().key);
+		statment.setString(4, review.getPrimaryKey().value);
+		statment.executeUpdate();
+		statment.close();
+	}
 }
