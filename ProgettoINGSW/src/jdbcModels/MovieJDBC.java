@@ -218,4 +218,29 @@ public class MovieJDBC implements MovieDao
 		statment.execute();
 		statment.close();
 	}
+
+	@Override
+	public void deleteReview(String nickname, String title) throws SQLException
+	{
+		String query = "delete from movie_review where users = ? and movie = ?";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, nickname);
+		statment.setString(2, title);
+		statment.execute();
+		statment.close();
+	}
+
+	@Override
+	public void updateReview(MovieReview review) throws SQLException
+	{
+		String query = "update movie_review set numberofstars = ?, description = ? "
+					 + "where users = ? and title = ?";
+		PreparedStatement statement = connection.prepareStatement(query);
+		statement.setShort(1, review.getNumberOfStars());
+		statement.setString(2, review.getDescription());
+		statement.setString(3, review.getPrimaryKey().key);
+		statement.setString(4, review.getPrimaryKey().value);
+		statement.executeUpdate();
+		statement.close();
+	}
 }

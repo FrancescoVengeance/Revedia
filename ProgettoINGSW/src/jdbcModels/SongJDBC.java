@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import com.sun.net.httpserver.Authenticator.Result;
 
 import daoInterfaces.SongDao;
+import model.AlbumReview;
 import model.Song;
 import model.SongReview;
 import utilities.Pair;
@@ -239,5 +240,32 @@ public class SongJDBC implements SongDao
 		statement.setString(5, review.getDescription());
 		statement.execute();
 		statement.close();
+	}
+
+	@Override
+	public void deleteReview(String nickname, String song, int albumId) throws SQLException
+	{
+		String query = "delete from song_review where users = ? and song = ? and album = ?";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, nickname);
+		statment.setString(2, song);
+		statment.setInt(3, albumId);
+		statment.execute();
+		statment.close();
+	}
+
+	@Override
+	public void updateReview(SongReview review) throws SQLException
+	{
+		String query = "update song_review set numberofstars = ?, description = ? "
+					 + "where users = ? and song = ? and album = ?";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setShort(1, review.getNumberOfStars());
+		statment.setString(2, review.getDescription());
+		statment.setString(3, review.getUser());
+		statment.setString(4, review.getSongKey().key);
+		statment.setInt(5, review.getSongKey().value);
+		statment.executeUpdate();
+		statment.close();
 	}
 }
