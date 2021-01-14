@@ -109,7 +109,7 @@ public class UserJDBC implements UserDao
 	{
 		Connection connection = this.dataSource.getConnection();
 
-		if (validateLogin(oldPassword, nickname, mail))
+		if (validateLogin(oldPassword, nickname))
 		{
 			String query = "update users set passwd = ? where nickname = ?";
 			PreparedStatement statment = connection.prepareStatement(query);
@@ -139,14 +139,13 @@ public class UserJDBC implements UserDao
 	}
 
 	@Override
-	public boolean validateLogin(String password, String nickname, String mail) throws SQLException
+	public boolean validateLogin(String password, String nickname) throws SQLException
 	{
 		Connection connection = this.dataSource.getConnection();
 
-		String query = "select passwd from users where nickname = ? or mail = ?";
+		String query = "select passwd from users where nickname = ?";
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, nickname);
-		statment.setString(2, mail);
 		ResultSet result = statment.executeQuery();
 
 		while (result.next())

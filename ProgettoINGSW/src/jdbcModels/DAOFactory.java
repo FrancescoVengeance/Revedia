@@ -26,5 +26,7 @@ public abstract class DAOFactory
 
 	public abstract UserJDBC getUserJDBC();
 
+	public abstract MovieJDBC getMovieJDBC();
+
 	public abstract DataSource getDataSource();
 }

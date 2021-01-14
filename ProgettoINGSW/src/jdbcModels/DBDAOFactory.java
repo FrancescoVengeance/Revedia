@@ -10,7 +10,7 @@ public class DBDAOFactory extends DAOFactory
 		{
 			Class.forName("org.postgresql.Driver").newInstance();
 
-			dataSource = new DataSource("indirizzo", "id", "pwd"); // METTERE SERVER AWS
+			dataSource = new DataSource("jdbc:postgresql://127.0.0.1:5432/Revedia","postgres","Lovecraft"); // METTERE SERVER AWS
 
 		} catch (Exception e)
 		{
@@ -58,6 +58,12 @@ public class DBDAOFactory extends DAOFactory
 	public DataSource getDataSource()
 	{
 		return dataSource;
+	}
+
+	@Override
+	public MovieJDBC getMovieJDBC()
+	{
+		return new MovieJDBC(dataSource);
 	}
 
 }

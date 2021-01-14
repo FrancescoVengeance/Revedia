@@ -1,15 +1,20 @@
 package model;
 
+import java.sql.SQLException;
+
+import jdbcModels.DAOFactory;
+import jdbcModels.UserJDBC;
+
 public class Main
 {
-	public static void main(String[] args)
+	public static void main(String[] args) throws SQLException
 	{
-		/*
-		 * try { User user =
-		 * DatabaseManager.getInstance().getUserDao().getUser("francesco");
-		 * System.out.println(user.getMail() + " " + user.getFirstName()); } catch
-		 * (SQLException e) { System.out.println("L'utente non esiste");
-		 * e.printStackTrace(); }
-		 */
+		User user = new User("G", "name", "sur", "mail");
+
+		DAOFactory factory = DAOFactory.getDAOFactory(DAOFactory.POSTGRESQL);
+		UserJDBC userJDBC = factory.getUserJDBC();
+
+		userJDBC.insertUser(user, "pwd");
+
 	}
 }

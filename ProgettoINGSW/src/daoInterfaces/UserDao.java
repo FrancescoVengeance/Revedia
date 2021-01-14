@@ -13,5 +13,5 @@ public interface UserDao
 	public void deleteUser(String nickname) throws SQLException;
 	public boolean changePassword(String oldPassword, String newPassword, String nickname, String mail) throws SQLException;
 	public void changePermissions(Permissions permissions, String nickname) throws SQLException;
-	public boolean validateLogin(String password, String nickname, String mail) throws SQLException;
+	public boolean validateLogin(String password, String nickname) throws SQLException;
 }
