@@ -88,7 +88,11 @@ public class UserJDBC implements UserDao
 	@Override
 	public void deleteUser(String nickname) throws SQLException 
 	{
-			
+		String query = "delete from users where nickname = ?";
+		PreparedStatement statement = connection.prepareStatement(query);
+		statement.setString(1, nickname);
+		statement.execute();
+		statement.close();
 	}
 
 

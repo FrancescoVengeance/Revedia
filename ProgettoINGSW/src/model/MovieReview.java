@@ -1,11 +1,16 @@
 package model;
 
-import utilities.Pair;
-
 public class MovieReview extends Review
-{
-	private Pair<String, String> primaryKey; //utente, film
+{	
+	private String user; //primary key
+	private String movie; //primary key
 	
-	public void setPrimaryKey(Pair<String, String> primaryKey) { this.primaryKey = primaryKey; }
-	public Pair<String, String> getPrimaryKey() { return primaryKey; }
+	public MovieReview() { super(); }
+	
+	
+	public String getUser() { return user; }
+	public void setUser(String user) { this.user = user; }
+	
+	public String getMovie() { return movie; }
+	public void setMovie(String movie) { this.movie = movie; }
 }

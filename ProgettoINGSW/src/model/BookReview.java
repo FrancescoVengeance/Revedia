@@ -1,11 +1,16 @@
 package model;
 
-import utilities.Pair;
-
 public class BookReview extends Review
-{
-	private Pair<String, String> primaryKey; //first = user, second = book
+{	
+	private String user;
+	private String book;
 	
-	public void setPrimaryKey(Pair<String, String> primaryKey) { this.primaryKey = primaryKey; }
-	public Pair<String, String> getPrimaryKey() { return primaryKey; }
+	public BookReview() { super(); }
+
+	
+	public String getUser() { return user; }
+	public void setUser(String user) { this.user = user; }
+
+	public String getBook() { return book; }
+	public void setBook(String book) { this.book = book; }
 }

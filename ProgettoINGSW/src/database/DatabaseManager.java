@@ -21,7 +21,7 @@ public class DatabaseManager
 {
 	private static DatabaseManager instance = null;
 	private final String driver = "org.postgresql.Driver";
-	private final String url = "jdbc:postgresql://localhost/ProgettoINGSW";
+	private final String url = "jdbc:postgresql://localhost/RevediaDB";
 	private final String user = "postgres";
 	private final String password = "postgres";
 	private Connection connection;
