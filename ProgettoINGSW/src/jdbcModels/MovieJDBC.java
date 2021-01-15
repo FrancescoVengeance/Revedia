@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import daoInterfaces.MovieDao;
 import model.Movie;
 import model.MovieReview;
-import utilities.Pair;
 
 public class MovieJDBC implements MovieDao
 {

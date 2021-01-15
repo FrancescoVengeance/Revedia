@@ -1,18 +1,15 @@
 package jdbcModels;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
-import com.sun.net.httpserver.Authenticator.Result;
-
 import daoInterfaces.SongDao;
 import model.AlbumReview;
 import model.Song;
 import model.SongReview;
-import utilities.Pair;
 
 //questa classe ancora non funziona
 public class SongJDBC implements SongDao 
@@ -28,7 +25,7 @@ public class SongJDBC implements SongDao
 	public ArrayList<Song> getSong(String name) throws SQLException 
 	{
 		String query = "select album.albumid, song.name as songname, album.name as albumname,"
-				+ " song.link, song.decription, song.users, song.length, song.rating"
+				+ " song.link, song.decription, song.users, song.length, song.rating, song.postdate"
 				+ " from song"
 				+ " inner join album"
 				+ " on song.album = album.albumid"
@@ -53,7 +50,7 @@ public class SongJDBC implements SongDao
 	public Song findByPrimaryKey(String name, int albumKey) throws SQLException 
 	{
 		String query = "select album.albumid, song.name as songname, album.name as albumname,"
-				+ " song.link, song.decription, song.users, song.length, song.rating"
+				+ " song.link, song.decription, song.users, song.length, song.rating, song.postdate"
 				+ " from song"
 				+ " inner join album"
 				+ " on song.album = album.albumid"
@@ -77,21 +74,25 @@ public class SongJDBC implements SongDao
 	{
 		String songName = result.getString("songname");
 		String albumName = result.getString("albumname");
-		int albumid = result.getInt("albumid");
+		int albumID = result.getInt("albumid");
 		String link = result.getString("link");
 		String description = result.getString("decription");
 		String user = result.getString("users");
 		float length = result.getFloat("length");
 		float rating = result.getFloat("rating");
+		Date postDate = result.getDate("postdate");
 		
 		Song song = new Song();
 		song.setName(songName);
-		song.setAlbum(new Pair<Integer, String>(albumid, albumName));
+		song.setAlbumID(albumID);
+		song.setAlbumName(albumName);
 		song.setLink(link);
 		song.setDescription(description);
 		song.setUser(user);
 		song.setLength(length);
 		song.setRating(rating);
+		song.setPostDate(postDate);
+		
 		return song;
 	}
 
@@ -102,7 +103,7 @@ public class SongJDBC implements SongDao
 		
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, song.getName());
-		statment.setInt(2, song.getAlbum().key);
+		statment.setInt(2, song.getAlbumID());
 		statment.setString(3, song.getLink());
 		statment.setString(4, song.getDescription());
 		statment.setString(5, userNickname);
@@ -115,14 +116,14 @@ public class SongJDBC implements SongDao
 	@Override
 	public void updateSong(Song song) throws SQLException 
 	{
-		String query = "update song set album = ?, link = ?, decription = ?, length = ? where name = ? and album = ?";
+		String query = "update song set link = ?, decription = ?, length = ? where name = ? and album = ?";
 		PreparedStatement statment = connection.prepareStatement(query);
-		statment.setInt(1, song.getAlbum().key);
+		statment.setInt(1, song.getAlbumID());
 		statment.setString(2, song.getLink());
 		statment.setString(3, song.getDescription());
 		statment.setFloat(4, song.getLength());
 		statment.setString(5, song.getName());
-		statment.setInt(6, song.getAlbum().key);
+		statment.setInt(6, song.getAlbumID());
 		
 		statment.executeUpdate();
 		statment.close();
@@ -134,7 +135,7 @@ public class SongJDBC implements SongDao
 		String query = "delete from song where name = ? and album = ?";
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, song.getName());
-		statment.setInt(2, song.getAlbum().key);
+		statment.setInt(2, song.getAlbumID());
 		statment.execute();
 		statment.close();
 	}
@@ -149,13 +150,13 @@ public class SongJDBC implements SongDao
 	@Override
 	public ArrayList<SongReview> getReviews(Song song) throws SQLException
 	{
-		String query = "select users, song, album, numberofstars, description "
+		String query = "select users, song, album, numberofstars, description, postdate "
 				+ "from song_review "
 				+ "where song = ? and album = ?";
 		
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, song.getName());
-		statment.setInt(2,song.getAlbum().key);
+		statment.setInt(2,song.getAlbumID());
 		
 		ResultSet result = statment.executeQuery();
 		ArrayList<SongReview> reviews = new ArrayList<SongReview>();
@@ -177,12 +178,15 @@ public class SongJDBC implements SongDao
 		int album = result.getInt("album");
 		short numberOfStars = result.getShort("numberofstars");
 		String description = result.getString("description");
+		Date postDate = result.getDate("postdate");
 		
 		SongReview review = new SongReview();
 		review.setUser(user);
-		review.setSongKey(new Pair<String,Integer>(songTitle, album));
+		review.setAlbumId(album);
+		review.setSongName(songTitle);
 		review.setNumberOfStars(numberOfStars);
 		review.setDescription(description);
+		review.setPostDate(postDate);
 		
 		return review;
 	}
@@ -190,7 +194,7 @@ public class SongJDBC implements SongDao
 	@Override
 	public ArrayList<Song> searchByKeyWords(String keyWords,int limit, int offset) throws SQLException
 	{
-		String query = "select album.albumid, song.name as songname, album.name as albumname,song.users, song.rating"
+		String query = "select album.albumid, song.name as songname, album.name as albumname, song.users, song.rating"
 				+ " from song"
 				+ " inner join album"
 				+ " on song.album = album.albumid"
@@ -216,7 +220,8 @@ public class SongJDBC implements SongDao
 			
 			Song song = new Song();
 			song.setName(songName);
-			song.setAlbum(new Pair<Integer, String>(albumid, albumName));
+			song.setAlbumID(albumid);
+			song.setAlbumName(albumName);
 			song.setUser(user);
 			song.setRating(rating);
 			
@@ -235,8 +240,8 @@ public class SongJDBC implements SongDao
 		String query = "insert into song_review(users,song,album,numberofstars,description) values(?,?,?,?,?)";
 		PreparedStatement statement = connection.prepareStatement(query);
 		statement.setString(1, review.getUser());
-		statement.setString(2, review.getSongKey().key);
-		statement.setInt(3, review.getSongKey().value);
+		statement.setString(2, review.getSongName());
+		statement.setInt(3, review.getAlbumId());
 		statement.setShort(4, review.getNumberOfStars());
 		statement.setString(5, review.getDescription());
 		statement.execute();
@@ -260,12 +265,13 @@ public class SongJDBC implements SongDao
 	{
 		String query = "update song_review set numberofstars = ?, description = ? "
 					 + "where users = ? and song = ? and album = ?";
+		
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setShort(1, review.getNumberOfStars());
 		statment.setString(2, review.getDescription());
 		statment.setString(3, review.getUser());
-		statment.setString(4, review.getSongKey().key);
-		statment.setInt(5, review.getSongKey().value);
+		statment.setString(4, review.getSongName());
+		statment.setInt(5, review.getAlbumId());
 		statment.executeUpdate();
 		statment.close();
 	}

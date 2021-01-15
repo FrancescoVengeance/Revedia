@@ -6,13 +6,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.sql.Date;
-
 import daoInterfaces.AlbumDao;
-import database.DatabaseManager;
 import model.Album;
 import model.AlbumReview;
 import model.Song;
-import utilities.Pair;
 
 public class AlbumJDBC implements AlbumDao 
 {
