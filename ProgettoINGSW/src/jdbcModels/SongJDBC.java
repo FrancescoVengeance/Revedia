@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import daoInterfaces.SongDao;
 import model.Song;
@@ -158,5 +159,30 @@ public class SongJDBC implements SongDao
 	{
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public List<Song> findAll() throws SQLException
+	{
+		Connection connection = this.dataSource.getConnection();
+
+		List<Song> songs = new ArrayList<>();
+
+		Song song = null;
+
+		String query = "select * from song";
+		PreparedStatement statement = connection.prepareStatement(query);
+		ResultSet result = statement.executeQuery();
+
+		while (result.next())
+		{
+			song = findByPrimaryKey(result.getString("name"), result.getInt("id"));
+			songs.add(song);
+		}
+
+		result.close();
+		connection.close();
+
+		return songs;
 	}
 }

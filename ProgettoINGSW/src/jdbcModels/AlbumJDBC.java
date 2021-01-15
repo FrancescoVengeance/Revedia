@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import daoInterfaces.AlbumDao;
 import model.Album;
@@ -106,5 +107,30 @@ public class AlbumJDBC implements AlbumDao
 		statment.setString(4, userNickname);
 		statment.execute();
 		statment.close();
+		connection.close();
+	}
+
+	@Override
+	public List<Album> findAll() throws SQLException
+	{
+		Connection connection = this.dataSource.getConnection();
+
+		List<Album> albums = new ArrayList<>();
+
+		Album album = null;
+
+		String query = "select * from album";
+		PreparedStatement statement = connection.prepareStatement(query);
+		ResultSet result = statement.executeQuery();
+		while (result.next())
+		{
+			album = getAlbum(result.getInt("id"));
+			albums.add(album);
+		}
+
+		result.close();
+		connection.close();
+
+		return albums;
 	}
 }

@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import daoInterfaces.BookDao;
 import model.Book;
@@ -196,5 +197,29 @@ public class BookJDBC implements BookDao
 		book.getGenres().add(genre);
 
 		return book;
+	}
+
+	@Override
+	public List<Book> findAll() throws SQLException
+	{
+		Connection connection = this.dataSource.getConnection();
+
+		List<Book> books = new ArrayList<>();
+
+		Book book = null;
+
+		String query = "select * from book";
+		PreparedStatement statement = connection.prepareStatement(query);
+		ResultSet result = statement.executeQuery();
+		while (result.next())
+		{
+			book = getBook(result.getString("title"));
+			books.add(book);
+		}
+
+		result.close();
+		connection.close();
+
+		return books;
 	}
 }

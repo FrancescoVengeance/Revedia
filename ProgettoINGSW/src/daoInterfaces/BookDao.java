@@ -2,8 +2,10 @@ package daoInterfaces;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import model.Book;
+import model.Song;
 
 public interface BookDao
 {
@@ -13,4 +15,5 @@ public interface BookDao
 	public void updateBook(Book book) throws SQLException;
 	public void insertBook(Book book) throws SQLException;
 	public void deleteBook(Book book) throws SQLException;
+	public List<Book> findAll() throws SQLException;
 }

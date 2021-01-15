@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import daoInterfaces.MovieDao;
 import model.Movie;
@@ -167,5 +168,29 @@ public class MovieJDBC implements MovieDao
 
 		return genres;
 
+	}
+
+	@Override
+	public List<Movie> findAll() throws SQLException
+	{
+		Connection connection = this.dataSource.getConnection();
+
+		List<Movie> movies = new ArrayList<>();
+
+		Movie movie = null;
+
+		String query = "select * from book";
+		PreparedStatement statement = connection.prepareStatement(query);
+		ResultSet result = statement.executeQuery();
+		while (result.next())
+		{
+			movie = getMovie(result.getString("title"));
+			movies.add(movie);
+		}
+
+		result.close();
+		connection.close();
+
+		return movies;
 	}
 }
