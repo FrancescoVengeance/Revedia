@@ -1,6 +1,7 @@
 package jdbcModels;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,9 +18,9 @@ public class ArtistJDBC implements ArtistDao
 	}
 	
 	@Override
-	public Artist getArtist(String name) throws SQLException
+	public Artist findByPrimaryKey(String name) throws SQLException
 	{
-		String query = "select name, biography from artist where name = ?";
+		String query = "select name, biography, postdate from artist where name = ?";
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, name);
 		ResultSet result = statment.executeQuery();
@@ -30,9 +31,11 @@ public class ArtistJDBC implements ArtistDao
 			artist = new Artist();
 			String artistName = result.getString("name");
 			String biography = result.getString("biography");
+			Date postDate = result.getDate("postdate");
 			
 			artist.setName(artistName);
 			artist.setBiography(biography);
+			artist.setPostDate(postDate);
 		}
 		
 		statment.close();

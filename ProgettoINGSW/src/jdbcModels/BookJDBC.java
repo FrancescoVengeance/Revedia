@@ -1,15 +1,14 @@
 package jdbcModels;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
 import daoInterfaces.BookDao;
 import model.Book;
 import model.BookReview;
-import utilities.Pair;
 
 public class BookJDBC implements BookDao
 {
@@ -23,10 +22,8 @@ public class BookJDBC implements BookDao
 	@Override
 	public Book getBook(String title) throws SQLException
 	{
-		String query = "select title, numberOfPages, description, link, publishinghouse, artist, genre, rating "
+		String query = "select title, numberOfPages, description, link, publishinghouse, users, rating, postdate "
 				+ "from book "
-				+ "inner join artist_book on artist_book.book = book.title "
-				+ "inner join genre_book on genre_book.book = book.title "
 				+ "where title = ?";
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, title);
@@ -47,10 +44,8 @@ public class BookJDBC implements BookDao
 	@Override
 	public ArrayList<Book> getBooksByPublisher(String publisher) throws SQLException
 	{
-		String query = "select title, numberOfPages, description, link, publishinghouse, artist, genre, rating "
+		String query = "select title, numberOfPages, description, link, publishinghouse, users, rating, postdate "
 				+ "from book "
-				+ "inner join artist_book on artist_book.book = book.title "
-				+ "inner join genre_book on genre_book.book = book.title "
 				+ "where publishinghouse = ?";
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, publisher);
@@ -71,10 +66,9 @@ public class BookJDBC implements BookDao
 	@Override
 	public ArrayList<Book> getBooksByArtist(String artist) throws SQLException
 	{
-		String query = "select title, numberOfPages, description, link, publishinghouse, artist, genre, rating "
+		String query = "select title, numberOfPages, description, link, publishinghouse, users, rating, postdate "
 				+ "from book "
 				+ "inner join artist_book on artist_book.book = book.title "
-				+ "inner join genre_book on genre_book.book = book.title "
 				+ "where artist = ?";
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, artist);
@@ -121,43 +115,46 @@ public class BookJDBC implements BookDao
 		statment.close();
 		
 		query = "insert into artist_book(artist, book) values(?,?)";
-		statment = connection.prepareStatement(query);
 		for(String artist : book.getAutors())
 		{
+			statment = connection.prepareStatement(query);
 			statment.setString(1, artist);
 			statment.setString(2, book.getTitle());
 			statment.execute();
+			statment.close();
 		}
-		statment.close();
 		
 		query = "insert into genre_book(genre, book) values (?,?)";
-		statment = connection.prepareStatement(query);
 		for(String genre : book.getGenres())
 		{
+			statment = connection.prepareStatement(query);
 			statment.setString(1, genre);
 			statment.setString(2, book.getTitle());
 			statment.execute();
+			statment.close();
 		}
-		statment.close();
 	}
 
 	@Override
-	public void deleteBook(Book book) throws SQLException
+	public void deleteBook(String title) throws SQLException
 	{
-		// TODO Auto-generated method stub
-
+		String query = "delete from book where title = ?";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1,title);
+		statment.execute();
+		statment.close();
 	}
 	
-	private static Book buildBook(ResultSet result) throws SQLException
+	private Book buildBook(ResultSet result) throws SQLException
 	{
 		String title = result.getString("title");
 		short numOfPages = result.getShort("numberofpages");
 		String description = result.getString("description");
 		String link = result.getString("link");
 		String publishingHouse = result.getString("publishinghouse");
-		String artist = result.getString("artist");
-		String genre = result.getString("genre");
+		String user = result.getString("users");
 		float rating = result.getFloat("rating");
+		Date postDate = result.getDate("postdate");
 		
 		Book book = new Book();
 		book.setTitle(title);
@@ -165,21 +162,59 @@ public class BookJDBC implements BookDao
 		book.setDescription(description);
 		book.setLink(link);
 		book.setPublishingHouse(publishingHouse);
-		book.getAutors().add(artist);
-		book.getGenres().add(genre);
+		book.setUser(user);
 		book.setRating(rating);
+		book.setPostDate(postDate);
+		book.setAutors(getAutors(title));
+		book.setGenres(getGenres(title));
 		
 		return book;
 	}
 
-	@Override
-	public ArrayList<BookReview> getReviews(Book book) throws SQLException
+	private ArrayList<String> getGenres(String title) throws SQLException
 	{
-		String query = "select users, book, numberofstars, description "
+		String query = "select genre from genre_book where book = ?";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, title);
+		
+		ResultSet result = statment.executeQuery();
+		ArrayList<String> genres = new ArrayList<String>();
+		
+		while(result.next())
+			genres.add(result.getString("genre"));
+		
+		statment.close();
+		result.close();
+		
+		return genres;
+	}
+
+	private ArrayList<String> getAutors(String title) throws SQLException
+	{
+		String query = "select artist from artist_book where book = ?";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, title);
+		
+		ResultSet result = statment.executeQuery();
+		ArrayList<String> autors = new ArrayList<String>();
+		
+		while(result.next())
+			autors.add(result.getString("artist"));
+		
+		statment.close();
+		result.close();
+		
+		return autors;
+	}
+
+	@Override
+	public ArrayList<BookReview> getReviews(String title) throws SQLException
+	{
+		String query = "select users, book, numberofstars, description, postdate "
 				+ "from book_review "
 				+ "where book = ?";
 		PreparedStatement statment = connection.prepareStatement(query);
-		statment.setString(1, book.getTitle());
+		statment.setString(1, title);
 		ResultSet result = statment.executeQuery();
 		
 		ArrayList<BookReview> reviews = new ArrayList<BookReview>();
@@ -200,11 +235,14 @@ public class BookJDBC implements BookDao
 		String book = result.getString("book");
 		short numberOfStars = result.getShort("numberofstars");
 		String description = result.getString("description");
+		Date postDate = result.getDate("postdate");
 		
 		BookReview review = new BookReview();
-		review.setPrimaryKey(new Pair<String, String>(user,book));
+		review.setUser(user);
+		review.setBook(book);
 		review.setDescription(description);
 		review.setNumberOfStars(numberOfStars);
+		review.setPostDate(postDate);
 		
 		return review;
 	}
@@ -212,10 +250,8 @@ public class BookJDBC implements BookDao
 	@Override
 	public ArrayList<Book> searchByKeyWords(String keyWords, int limit, int offset) throws SQLException
 	{
-		String query = "select title, numberOfPages, description, link, publishinghouse, artist, genre, rating "
+		String query = "select title, numberOfPages, description, link, publishinghouse, users, rating, postdate "
 				+ "from book "
-				+ "inner join artist_book on artist_book.book = book.title "
-				+ "inner join genre_book on genre_book.book = book.title "
 				+ "where title similar to ? "
 				+ "limit ? offset ?";
 		
@@ -241,8 +277,8 @@ public class BookJDBC implements BookDao
 	{
 		String query = "insert into book_review(users,book,numberofstars,description) values(?,?,?,?)";
 		PreparedStatement statement = connection.prepareStatement(query);
-		statement.setString(1, review.getPrimaryKey().key);
-		statement.setString(2, review.getPrimaryKey().value);
+		statement.setString(1, review.getUser());
+		statement.setString(2, review.getBook());
 		statement.setShort(3, review.getNumberOfStars());
 		statement.setString(4, review.getDescription());
 		statement.execute();
@@ -268,8 +304,8 @@ public class BookJDBC implements BookDao
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setShort(1, review.getNumberOfStars());
 		statment.setString(2, review.getDescription());
-		statment.setString(3, review.getPrimaryKey().key);
-		statment.setString(4, review.getPrimaryKey().value);
+		statment.setString(3, review.getUser());
+		statment.setString(4, review.getBook());
 		statment.executeUpdate();
 		statment.close();
 	}

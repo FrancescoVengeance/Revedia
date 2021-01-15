@@ -2,9 +2,6 @@ package daoInterfaces;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-
-import model.AlbumReview;
-import model.BookReview;
 import model.Song;
 import model.SongReview;
 

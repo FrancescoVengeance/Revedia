@@ -1,6 +1,7 @@
 package jdbcModels;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,9 +22,10 @@ public class MovieJDBC implements MovieDao
 	}
 	
 	@Override
-	public Movie getMovie(String title) throws SQLException
+	public Movie findByPrimaryKey(String title) throws SQLException
 	{
-		String query = "select select title, length, description, link, users, rating from movie where title = ?";
+		String query = "select title, length, description, link, users, rating, postdate "
+					 + "from movie where title = ?";
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, title);
 		ResultSet result = statment.executeQuery();
@@ -92,17 +94,28 @@ public class MovieJDBC implements MovieDao
 	}
 
 	@Override
-	public void deleteMovie() throws SQLException
+	public void deleteMovie(String title) throws SQLException
 	{
-		// TODO Auto-generated method stub
-
+		String query = "delete from movie where title = ?";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, title);
+		statment.execute();
+		statment.close();
 	}
 
 	@Override
-	public void updateMovie() throws SQLException
+	public void updateMovie(Movie movie) throws SQLException
 	{
-		// TODO Auto-generated method stub
-
+		String query = "update movie set length = ?, description = ?, link = ? "
+				+ "where title = ?";
+		
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setFloat(1, movie.getLength());
+		statment.setString(2, movie.getDescription());
+		statment.setString(3, movie.getLink());
+		statment.setString(4, movie.getTitle());
+		statment.executeUpdate();
+		statment.close();
 	}
 	
 	private Movie buildMovie(ResultSet result) throws SQLException
@@ -113,6 +126,7 @@ public class MovieJDBC implements MovieDao
 		String link = result.getString("link");
 		String user = result.getString("users");
 		float rating = result.getFloat("rating");
+		Date postDate = result.getDate("postdate");
 		
 		Movie movie = new Movie();
 		movie.setTitle(title);
@@ -122,6 +136,7 @@ public class MovieJDBC implements MovieDao
 		movie.setUser(user);
 		movie.setGenres(getGenres(title));
 		movie.setRating(rating);
+		movie.setPostDate(postDate);
 		
 		return movie;
 	}
@@ -145,20 +160,18 @@ public class MovieJDBC implements MovieDao
 	}
 
 	@Override
-	public ArrayList<MovieReview> getReviews(Movie movie) throws SQLException
+	public ArrayList<MovieReview> getReviews(String title) throws SQLException
 	{
-		String query = "select users, movie, numberofstars, description "
+		String query = "select users, movie, numberofstars, description, postdate "
 				+ "from movie_review "
 				+ "where movie = ?";
 		PreparedStatement statment = connection.prepareStatement(query);
-		statment.setString(1, movie.getTitle());
+		statment.setString(1, title);
 		ResultSet result = statment.executeQuery();
 		
 		ArrayList<MovieReview> reviews = new ArrayList<MovieReview>();
 		while(result.next())
-		{
 			reviews.add(buildReview(result));
-		}
 		
 		result.close();
 		statment.close();
@@ -172,11 +185,14 @@ public class MovieJDBC implements MovieDao
 		String movie = result.getString("movie");
 		short numberOfStars = result.getShort("numberofstars");
 		String description = result.getString("description");
+		Date postDate = result.getDate("postdate");
 		
 		MovieReview review = new MovieReview();
-		review.setPrimaryKey(new Pair<String, String>(user, movie));
+		review.setUser(user);
+		review.setMovie(movie);
 		review.setNumberOfStars(numberOfStars);
 		review.setDescription(description);
+		review.setPostDate(postDate);
 		
 		return review;
 	}
@@ -184,7 +200,7 @@ public class MovieJDBC implements MovieDao
 	@Override
 	public ArrayList<Movie> searchByKeyWords(String keyWords, int limit, int offset) throws SQLException
 	{
-		String query = "select title, length, description, link, users, rating"
+		String query = "select title, length, description, link, users, rating, postdate "
 				     + "from movie "
 				     + "where title similar to ? "
 				     + "limit ? offset ?";
@@ -211,8 +227,8 @@ public class MovieJDBC implements MovieDao
 	{
 		String query = "insert into movie_review(users, movie, numberofstars, description) values(?,?,?,?)";
 		PreparedStatement statment = connection.prepareStatement(query);
-		statment.setString(1, review.getPrimaryKey().key);
-		statment.setString(2, review.getPrimaryKey().value);
+		statment.setString(1, review.getUser());
+		statment.setString(2, review.getMovie());
 		statment.setShort(3, review.getNumberOfStars());
 		statment.setString(4, review.getDescription());
 		statment.execute();
@@ -235,11 +251,12 @@ public class MovieJDBC implements MovieDao
 	{
 		String query = "update movie_review set numberofstars = ?, description = ? "
 					 + "where users = ? and title = ?";
+		
 		PreparedStatement statement = connection.prepareStatement(query);
 		statement.setShort(1, review.getNumberOfStars());
 		statement.setString(2, review.getDescription());
-		statement.setString(3, review.getPrimaryKey().key);
-		statement.setString(4, review.getPrimaryKey().value);
+		statement.setString(3, review.getUser());
+		statement.setString(4, review.getMovie());
 		statement.executeUpdate();
 		statement.close();
 	}

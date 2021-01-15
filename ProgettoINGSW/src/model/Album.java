@@ -1,6 +1,7 @@
 package model;
 
 import java.sql.Date;
+import java.util.ArrayList;
 
 public class Album 
 {
@@ -11,8 +12,9 @@ public class Album
 	private String label;
 	private String user;
 	private String artist;
-	private String genre;
+	private ArrayList<String> genres;
 	private float rating;
+	private Date postDate;
 	
 
 	public Album() { super(); }
@@ -38,11 +40,14 @@ public class Album
 	public String getArtist() { return artist; }
 	public void setArtist(String artist) { this.artist = artist; }
 	
-	public String getGenre() { return genre; }
-	public void setGenre(String genre) { this.genre = genre; }
+	public ArrayList<String> getGenre() { return genres; }
+	public void setGenre(ArrayList<String> genres) { this.genres = genres; }
 	
 	public float getRating() { return rating; }
 	public void setRating(float rating) { this.rating = rating; }
+
+	public Date getPostDate() { return postDate; }
+	public void setPostDate(Date postDate) { this.postDate = postDate; }
 }
 
 /*create table if not exists album
@@ -53,5 +58,7 @@ public class Album
 	releaseDate date not null,
 	label varchar(20) not null,
 	users varchar(20) not null,
-	foreign key(users) references users(nickname)
+	rating real default 0,
+	postdate date not null default current_date,
+	foreign key(users) references users(nickname) on delete cascade
 );*/
