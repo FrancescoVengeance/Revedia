@@ -8,10 +8,9 @@
 
 	<body>
 	
-		<form action="add">
-			<input type="text" name="t1"><br>
-			<input type="text" name="t2"><br>
-			<input type="submit">
+		<form action="register" method="POST">
+			<input type="text" name="name"><br>
+			<button type="submit">Invio</button>
 		</form>
 	
 	</body>

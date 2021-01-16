@@ -1,5 +1,6 @@
 package configuration;
 
+
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
 public class WebInitializer extends AbstractAnnotationConfigDispatcherServletInitializer
@@ -8,8 +9,7 @@ public class WebInitializer extends AbstractAnnotationConfigDispatcherServletIni
 	@Override
 	protected Class<?>[] getRootConfigClasses()
 	{
-		// TODO Auto-generated method stub
-		return null;
+		return new Class<?>[] {};
 	}
 
 	@Override
