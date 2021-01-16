@@ -1,6 +1,7 @@
 package jdbcModels;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -184,5 +185,134 @@ public class SongJDBC implements SongDao
 		connection.close();
 
 		return songs;
+	}
+
+	@Override
+	public ArrayList<SongReview> getReviews(Song song) throws SQLException
+	{
+		String query = "select users, song, album, numberofstars, description, postdate "
+				+ "from song_review "
+				+ "where song = ? and album = ?";
+		
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, song.getName());
+		statment.setInt(2,song.getAlbumID());
+		
+		ResultSet result = statment.executeQuery();
+		ArrayList<SongReview> reviews = new ArrayList<SongReview>();
+		while(result.next())
+		{
+			reviews.add(buildSongReview(result));
+		}
+		
+		result.close();
+		statment.close();
+		
+		return reviews;
+	}
+	
+	private SongReview buildSongReview(ResultSet result) throws SQLException
+	{
+		String user = result.getString("users");
+		String songTitle = result.getString("song");
+		int album = result.getInt("album");
+		short numberOfStars = result.getShort("numberofstars");
+		String description = result.getString("description");
+		Date postDate = result.getDate("postdate");
+		
+		SongReview review = new SongReview();
+		review.setUser(user);
+		review.setAlbumId(album);
+		review.setSongName(songTitle);
+		review.setNumberOfStars(numberOfStars);
+		review.setDescription(description);
+		review.setPostDate(postDate);
+		
+		return review;
+	}
+
+	@Override
+	public ArrayList<Song> searchByKeyWords(String keyWords,int limit, int offset) throws SQLException
+	{
+		String query = "select album.albumid, song.name as songname, album.name as albumname, song.users, song.rating"
+				+ " from song"
+				+ " inner join album"
+				+ " on song.album = album.albumid"
+				+ " where songname similar to ? or albumname similar to ?"
+				+ " limit ? offset ?";
+		
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, keyWords);
+		statment.setString(2, keyWords);
+		statment.setInt(3, limit);
+		statment.setInt(4, offset);
+		
+		ResultSet result = statment.executeQuery();
+		
+		ArrayList<Song> songs = new ArrayList<Song>();
+		while(result.next())
+		{
+			String songName = result.getString("songname");
+			String albumName = result.getString("albumname");
+			int albumid = result.getInt("albumid");
+			String user = result.getString("users");
+			float rating = result.getFloat("rating");
+			
+			Song song = new Song();
+			song.setName(songName);
+			song.setAlbumID(albumid);
+			song.setAlbumName(albumName);
+			song.setUser(user);
+			song.setRating(rating);
+			
+			songs.add(song);
+		}
+		
+		result.close();
+		statment.close();
+		
+		return songs;
+	}
+
+	@Override
+	public void addReview(SongReview review) throws SQLException
+	{
+		String query = "insert into song_review(users,song,album,numberofstars,description) values(?,?,?,?,?)";
+		PreparedStatement statement = connection.prepareStatement(query);
+		statement.setString(1, review.getUser());
+		statement.setString(2, review.getSongName());
+		statement.setInt(3, review.getAlbumId());
+		statement.setShort(4, review.getNumberOfStars());
+		statement.setString(5, review.getDescription());
+		statement.execute();
+		statement.close();
+	}
+
+	@Override
+	public void deleteReview(String nickname, String song, int albumId) throws SQLException
+	{
+		String query = "delete from song_review where users = ? and song = ? and album = ?";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, nickname);
+		statment.setString(2, song);
+		statment.setInt(3, albumId);
+		statment.execute();
+		statment.close();
+	}
+
+	@Override
+	public void updateReview(SongReview review) throws SQLException
+	{
+		String query = "update song_review set numberofstars = ?, description = ? "
+					 + "where users = ? and song = ? and album = ?";
+		
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setShort(1, review.getNumberOfStars());
+		statment.setString(2, review.getDescription());
+		statment.setString(3, review.getUser());
+		statment.setString(4, review.getSongName());
+		statment.setInt(5, review.getAlbumId());
+		statment.executeUpdate();
+		statment.close();
 	}
 }

@@ -24,7 +24,7 @@ public class ArtistJDBC implements ArtistDao
 	}
 
 	@Override
-	public Artist getArtist(String name) throws SQLException
+	public Artist findByPrimaryKey(String name) throws SQLException
 	{
 		Connection connection = this.dataSource.getConnection();
 

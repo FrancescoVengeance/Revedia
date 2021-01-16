@@ -2,7 +2,6 @@ package daoInterfaces;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 
 import model.Album;
 import model.Song;
@@ -16,4 +15,11 @@ public interface SongDao
 	public void deleteSong(Song song) throws SQLException;
 	public Song findByPrimaryKey(String name, int albumKey) throws SQLException;
 	public List<Song> findAll() throws SQLException;
+	
+	public ArrayList<SongReview> getReviews(Song song) throws SQLException;
+	public void addReview(SongReview review) throws SQLException;
+	public void deleteReview(String nickname, String song, int albumId) throws SQLException;
+	public void updateReview(SongReview review) throws SQLException;
+	
+	public ArrayList<Song> searchByKeyWords(String keyWords, int limit, int offset) throws SQLException;
 }

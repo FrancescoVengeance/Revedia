@@ -1,5 +1,6 @@
 package model;
 
+import java.sql.Date;
 import java.util.ArrayList;
 
 public class Movie
@@ -10,6 +11,8 @@ public class Movie
 	private String link;
 	private String user;
 	private ArrayList<String> genres;
+	private float rating;
+	private Date postDate;
 	
 	public Movie() 
 	{
@@ -44,4 +47,10 @@ public class Movie
 
 	public ArrayList<String> getGenres() { return genres; }
 	public void setGenres(ArrayList<String> genres) { this.genres = genres; }
+	
+	public float getRating() { return rating; }
+	public void setRating(float rating) { this.rating = rating; }
+
+	public Date getPostDate() { return postDate; }
+	public void setPostDate(Date postDate) { this.postDate = postDate; }
 }

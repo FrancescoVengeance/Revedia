@@ -30,9 +30,10 @@ public class BookJDBC implements BookDao
 	{
 		Connection connection = this.dataSource.getConnection();
 
-		String query = "select title, numberOfPages, description, link, publishinghouse, artist, genre " + "from book "
-				+ "inner join artist_book on artist_book.book = book.title "
-				+ "inner join genre_book on genre_book.book = book.title " + "where title = ?";
+		
+		String query = "select title, numberOfPages, description, link, publishinghouse, users, rating, postdate "
+				+ "from book "
+				+ "where title = ?";
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, title);
 		ResultSet result = statment.executeQuery();
@@ -221,5 +222,144 @@ public class BookJDBC implements BookDao
 		connection.close();
 
 		return books;
+	}
+
+	private ArrayList<String> getGenres(String title) throws SQLException
+	{
+		String query = "select genre from genre_book where book = ?";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, title);
+		
+		ResultSet result = statment.executeQuery();
+		ArrayList<String> genres = new ArrayList<String>();
+		
+		while(result.next())
+			genres.add(result.getString("genre"));
+		
+		statment.close();
+		result.close();
+		
+		return genres;
+	}
+
+	private ArrayList<String> getAutors(String title) throws SQLException
+	{
+		String query = "select artist from artist_book where book = ?";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, title);
+		
+		ResultSet result = statment.executeQuery();
+		ArrayList<String> autors = new ArrayList<String>();
+		
+		while(result.next())
+			autors.add(result.getString("artist"));
+		
+		statment.close();
+		result.close();
+		
+		return autors;
+	}
+
+	@Override
+	public ArrayList<BookReview> getReviews(String title) throws SQLException
+	{
+		String query = "select users, book, numberofstars, description, postdate "
+				+ "from book_review "
+				+ "where book = ?";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, title);
+		ResultSet result = statment.executeQuery();
+		
+		ArrayList<BookReview> reviews = new ArrayList<BookReview>();
+		while(result.next())
+		{
+			reviews.add(buildReview(result));
+		}
+		
+		statment.close();
+		result.close();
+		
+		return reviews;
+	}
+
+	private BookReview buildReview(ResultSet result) throws SQLException
+	{
+		String user = result.getString("users");
+		String book = result.getString("book");
+		short numberOfStars = result.getShort("numberofstars");
+		String description = result.getString("description");
+		Date postDate = result.getDate("postdate");
+		
+		BookReview review = new BookReview();
+		review.setUser(user);
+		review.setBook(book);
+		review.setDescription(description);
+		review.setNumberOfStars(numberOfStars);
+		review.setPostDate(postDate);
+		
+		return review;
+	}
+
+	@Override
+	public ArrayList<Book> searchByKeyWords(String keyWords, int limit, int offset) throws SQLException
+	{
+		String query = "select title, numberOfPages, description, link, publishinghouse, users, rating, postdate "
+				+ "from book "
+				+ "where title similar to ? "
+				+ "limit ? offset ?";
+		
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, keyWords);
+		statment.setInt(2, limit);
+		statment.setInt(3, offset);
+	
+		ResultSet result = statment.executeQuery();
+		
+		ArrayList<Book> books = new ArrayList<Book>();
+		while(result.next())
+			books.add(buildBook(result));
+		
+		result.close();
+		statment.close();
+		
+		return books;
+	}
+
+	@Override
+	public void addReview(BookReview review) throws SQLException
+	{
+		String query = "insert into book_review(users,book,numberofstars,description) values(?,?,?,?)";
+		PreparedStatement statement = connection.prepareStatement(query);
+		statement.setString(1, review.getUser());
+		statement.setString(2, review.getBook());
+		statement.setShort(3, review.getNumberOfStars());
+		statement.setString(4, review.getDescription());
+		statement.execute();
+		statement.close();
+	}
+
+	@Override
+	public void deleteReview(String nickname, String title) throws SQLException
+	{
+		String query = "delete from book_review where users = ? and book = ?";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, nickname);
+		statment.setString(2, title);
+		statment.execute();
+		statment.close();
+	}
+
+	@Override
+	public void updateReview(BookReview review) throws SQLException
+	{
+		String query = "update book_review set numberofstars = ?, description = ? "
+					 + "where users = ? and book = ?";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setShort(1, review.getNumberOfStars());
+		statment.setString(2, review.getDescription());
+		statment.setString(3, review.getUser());
+		statment.setString(4, review.getBook());
+		statment.executeUpdate();
+		statment.close();
 	}
 }

@@ -2,5 +2,5 @@ package utilities;
 
 public enum Permissions 
 {
-	ROOT, EDITOR, ADMIN, STANDARD;
+	EDITOR, ADMIN, STANDARD;
 }

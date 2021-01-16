@@ -1,10 +1,11 @@
 package model;
 
+import java.sql.Date;
 import java.util.ArrayList;
 
 public class Book 
 {
-	private String title;
+	private String title; //PK
 	private short numberOfPages;
 	private String description;
 	private String publishingHouse;
@@ -12,6 +13,8 @@ public class Book
 	private String link;
 	private ArrayList<String> autors;
 	private ArrayList<String> genres;
+	private float rating;
+	private Date postDate;
 	
 	public Book() 
 	{
@@ -57,4 +60,10 @@ public class Book
 
 	public ArrayList<String> getGenres() { return genres; }
 	public void setGenres(ArrayList<String> genres) { this.genres = genres; }
+	
+	public float getRating() { return rating; }
+	public void setRating(float rating) { this.rating = rating; }
+
+	public Date getPostDate() { return postDate; }
+	public void setPostDate(Date postDate) { this.postDate = postDate; }
 }
