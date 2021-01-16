@@ -1,7 +1,6 @@
 package jdbcModels;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,7 +27,7 @@ public class MovieJDBC implements MovieDao
 	}
 
 	@Override
-	public Movie getMovie(String title) throws SQLException
+	public Movie findByPrimaryKey(String title) throws SQLException
 	{
 		Connection connection = this.dataSource.getConnection();
 
@@ -185,7 +184,7 @@ public class MovieJDBC implements MovieDao
 		ResultSet result = statement.executeQuery();
 		while (result.next())
 		{
-			movie = getMovie(result.getString("title"));
+			movie = findByPrimaryKey(result.getString("title"));
 			movies.add(movie);
 		}
 
