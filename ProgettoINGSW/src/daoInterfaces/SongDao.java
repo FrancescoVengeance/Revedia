@@ -2,9 +2,11 @@ package daoInterfaces;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
 import model.Album;
 import model.Song;
+import model.SongReview;
 
 public interface SongDao 
 {

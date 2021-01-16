@@ -10,6 +10,8 @@ import java.util.List;
 
 import daoInterfaces.AlbumDao;
 import model.Album;
+import model.AlbumReview;
+import model.Song;
 
 public class AlbumJDBC implements AlbumDao
 {
@@ -133,25 +135,27 @@ public class AlbumJDBC implements AlbumDao
 
 		return albums;
 	}
-	
+
 	@Override
 	public ArrayList<AlbumReview> getReviews(Album album) throws SQLException
 	{
-		String query = "select users, album, numberofStars, description, postdate "
-				+ "from album_review "
+		Connection connection = this.dataSource.getConnection();
+
+		String query = "select users, album, numberofStars, description, postdate " + "from album_review "
 				+ "where album = ?";
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setInt(1, album.getId());
 		ResultSet result = statment.executeQuery();
-		
+
 		ArrayList<AlbumReview> reviews = new ArrayList<AlbumReview>();
-		while(result.next())
+		while (result.next())
 		{
 			reviews.add(buildReview(result));
 		}
-		
+
 		result.close();
 		statment.close();
+		connection.close();
 		return reviews;
 	}
 
@@ -162,74 +166,84 @@ public class AlbumJDBC implements AlbumDao
 		short numberOfStars = result.getShort("numberOfStars");
 		String description = result.getString("description");
 		Date postDate = result.getDate("postdate");
-		
+
 		AlbumReview review = new AlbumReview();
 		review.setUser(user);
 		review.setAlbumId(albumId);
 		review.setNumberOfStars(numberOfStars);
 		review.setDescription(description);
 		review.setPostDate(postDate);
-				
+
 		return review;
 	}
 
 	@Override
 	public ArrayList<Album> searchByKeyWords(String keyWords, int limit, int offset) throws SQLException
-	{	
+	{
+
+		Connection connection = this.dataSource.getConnection();
+
 		String query = "select albumid, name, numberofsongs, releasedate, label, users, rating, postdate, artist "
-				+ "from album "
-				+ "inner join artist_album "
-				+ "on album.albumid = artist_album.album "
-				+ "where name similar to ? "
-				+ "limit ? offset ?";
-	
+				+ "from album " + "inner join artist_album " + "on album.albumid = artist_album.album "
+				+ "where name similar to ? " + "limit ? offset ?";
+
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, keyWords);
 		statment.setInt(2, limit);
 		statment.setInt(3, offset);
-	
+
 		ResultSet result = statment.executeQuery();
 		ArrayList<Album> albums = new ArrayList<Album>();
-		
-		while(result.next())
+
+		while (result.next())
+		{
 			albums.add(buildAlbum(result));
-		
+		}
+
 		result.close();
 		statment.close();
-		
+		connection.close();
+
 		return albums;
 	}
 
 	@Override
 	public void addReview(AlbumReview review) throws SQLException
 	{
+		Connection connection = this.dataSource.getConnection();
+
 		String query = "insert into album_review(users, album, numberofstars, description) values(?,?,?,?)";
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, review.getUser());
 		statment.setInt(2, review.getAlbumId());
 		statment.setShort(3, review.getNumberOfStars());
 		statment.setString(4, review.getDescription());
-		
+
 		statment.execute();
 		statment.close();
+		connection.close();
 	}
 
 	@Override
 	public void deleteReview(String nickname, int albumId) throws SQLException
 	{
+		Connection connection = this.dataSource.getConnection();
+
 		String query = "delete from album_review where users = ? and album = ?";
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, nickname);
 		statment.setInt(2, albumId);
 		statment.execute();
 		statment.close();
+		connection.close();
 	}
 
 	@Override
 	public void updateReview(AlbumReview review) throws SQLException
 	{
-		String query = "update album_review set numberofStars = ?, description = ? "
-					 + "where users = ? and album = ?";
+		Connection connection = this.dataSource.getConnection();
+
+		String query = "update album_review set numberofStars = ?, description = ? " + "where users = ? and album = ?";
 		PreparedStatement statement = connection.prepareStatement(query);
 		statement.setShort(1, review.getNumberOfStars());
 		statement.setString(2, review.getDescription());
@@ -237,11 +251,14 @@ public class AlbumJDBC implements AlbumDao
 		statement.setInt(4, review.getAlbumId());
 		statement.executeUpdate();
 		statement.close();
+		connection.close();
 	}
 
 	@Override
 	public void updateAlbum(Album album) throws SQLException
 	{
+		Connection connection = this.dataSource.getConnection();
+
 		String query = "update album set name  = ?, releasedate = ?, label = ? where albumid = ?";
 		PreparedStatement statement = connection.prepareStatement(query);
 		statement.setString(1, album.getName());
@@ -250,52 +267,56 @@ public class AlbumJDBC implements AlbumDao
 		statement.setInt(4, album.getId());
 		statement.executeUpdate();
 		statement.close();
+		connection.close();
 	}
 
 	@Override
 	public void deleteAlbum(int id) throws SQLException
 	{
+		Connection connection = this.dataSource.getConnection();
+
 		String query = "delete from album where albumid = ?";
 		PreparedStatement statement = connection.prepareStatement(query);
 		statement.setInt(1, id);
 		statement.execute();
 		statement.close();
+		connection.close();
 	}
 
 	@Override
 	public ArrayList<Song> getSongs(int id) throws SQLException
 	{
+		Connection connection = this.dataSource.getConnection();
+
 		String query = "select album.albumid, song.name as songname, album.name as albumname,"
-				+ " song.length, song.rating"
-				+ " from song"
-				+ " inner join album"
-				+ " on song.album = album.albumid"
+				+ " song.length, song.rating" + " from song" + " inner join album" + " on song.album = album.albumid"
 				+ " where albumid = ?";
 		PreparedStatement statement = connection.prepareStatement(query);
 		statement.setInt(1, id);
 		ResultSet result = statement.executeQuery();
 		ArrayList<Song> songs = new ArrayList<Song>();
-		
-		while(result.next())
+
+		while (result.next())
 		{
 			String name = result.getString("songnname");
 			int albumId = result.getInt("albumid");
 			float length = result.getFloat("length");
 			float rating = result.getFloat("rating");
 			String albumName = result.getString("albumname");
-			
+
 			Song song = new Song();
 			song.setName(name);
 			song.setLength(length);
 			song.setRating(rating);
 			song.setAlbumID(albumId);
 			song.setAlbumName(albumName);
-			
+
 			songs.add(song);
 		}
-		
+
 		result.close();
 		statement.close();
+		connection.close();
 		return songs;
 	}
 }
