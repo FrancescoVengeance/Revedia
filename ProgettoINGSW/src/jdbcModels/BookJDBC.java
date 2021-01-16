@@ -172,9 +172,15 @@ public class BookJDBC implements BookDao
 	}
 
 	@Override
-	public void deleteBook(Book book) throws SQLException
+	public void deleteBook(String title) throws SQLException
 	{
-		// TODO Auto-generated method stub
+		Connection connection = this.dataSource.getConnection();
+		String query = "delete from book where title = ?";
+		PreparedStatement statment = connection.prepareStatement(query);
+		statment.setString(1, title);
+		statment.execute();
+		statment.close();
+		connection.close();
 
 	}
 
