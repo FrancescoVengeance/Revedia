@@ -15,19 +15,19 @@ import jdbcModels.AlbumJDBC;
 public class ReturnAlbums
 {
 
-	@RequestMapping(value = "/Albums", method = RequestMethod.GET)
-	public void returnAlbums(HttpServletResponse response) throws IOException
-	{
-
-		AlbumJDBC albumJDBC = DatabaseManager.getIstance().getDaoFactory().getAlbumJDBC();
-
-		/*
-		 * List<Album> albums = albumJDBC.findAll(); if (albums.isEmpty()) {
-		 * response.getWriter().println("No albums found!"); return; }
-		 */
-
-		/* JSON */
-
-	}
+//	@RequestMapping(value = "/Albums", method = RequestMethod.GET)
+//	public void returnAlbums(HttpServletResponse response) throws IOException
+//	{
+//
+//		AlbumJDBC albumJDBC = DatabaseManager.getIstance().getDaoFactory().getAlbumJDBC();
+//
+//		/*
+//		 * List<Album> albums = albumJDBC.findAll(); if (albums.isEmpty()) {
+//		 * response.getWriter().println("No albums found!"); return; }
+//		 */
+//
+//		/* JSON */
+//
+//	}
 
 }

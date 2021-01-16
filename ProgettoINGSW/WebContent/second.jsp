@@ -7,6 +7,6 @@
 <title>Insert title here</title>
 </head>
 <body>
-	<h1>Hai cambiato pagina</h1>
+	<h1>Benvenuto ${nickname}</h1>
 </body>
 </html>

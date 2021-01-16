@@ -1,61 +1,70 @@
 package controller;
 
-import java.io.IOException;
 import java.sql.SQLException;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
+import org.springframework.web.servlet.ModelAndView;
 import database.DatabaseManager;
-import jdbcModels.UserJDBC;
 import model.User;
+import utilities.PasswordManager;
 
 @Controller
 public class Login
-{
-
-	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public void checkLogin(HttpSession session, HttpServletResponse response) throws IOException
+{	
+	@PostMapping("/loginUser")
+	public ModelAndView loginUser(@RequestParam("nickname") String nickname, @RequestParam("password") String password)
 	{
-
-		String nickName = (String) session.getAttribute("nickname");
-
-		if (nickName != null)
+		ModelAndView model = new ModelAndView();
+		try
 		{
-			System.out.println(nickName);
-			response.getWriter().println("<html>");
-			response.getWriter().println("<body>");
-			response.getWriter().println("<h1>Sei loggato come '" + nickName + "'</h1>");
-			response.getWriter().println("</body>");
-			response.getWriter().println("</html>");
+			String MD5Password = PasswordManager.getMD5(password);
+			if(DatabaseManager.getIstance().getDaoFactory().getUserJDBC().validateLogin(MD5Password, nickname))
+			{
+				model.setViewName("second.jsp");
+				model.addObject("nickname", nickname);
+			}
+			else
+			{
+				model.setViewName("register.jsp");
+			}
+		} 
+		catch (SQLException e)
+		{
+			e.printStackTrace();
 		}
-
+		
+		return model;
 	}
-
-	@RequestMapping(value = "/tag del form register", method = RequestMethod.POST)
-	public void loginForm(@RequestParam("/tag nick") String nick, @RequestParam("/tag pwd") String pwd,
-			HttpSession session, HttpServletResponse response) throws SQLException, IOException
+	
+	@PostMapping("/register")
+	public ModelAndView register(@RequestParam("nickname") String nickname, @RequestParam("nome") String firstName,
+								 @RequestParam("cognome") String lastName, @RequestParam("mail") String mail,
+								 @RequestParam("password") String password)
 	{
-		UserJDBC userJDBC = DatabaseManager.getIstance().getDaoFactory().getUserJDBC();
-		User user = userJDBC.getUser(nick);
-
-		Cookie ck = new Cookie("nickname", nick);
-		ck.setMaxAge(-1);
-
-		if (userJDBC.validateLogin(pwd, nick))
+		ModelAndView model = new ModelAndView();
+		
+		User user = new User();
+		user.setFirstName(firstName);
+		user.setLastName(lastName);
+		user.setNickname(nickname);
+		user.setMail(mail);
+		String MD5Password = PasswordManager.getMD5(password);
+		try
 		{
-
-			response.addCookie(ck);
-			response.getWriter().println("<script>window.location.href='home.jsp';</script>");
-
+			DatabaseManager.getIstance().getDaoFactory().getUserJDBC().insertUser(user, MD5Password);
+			model.setViewName("second.jsp");
+			model.addObject("nickname", nickname);
+			System.out.println("utente registrato");
+			
+		} 
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+			model.setViewName("register.jsp");
+			model.addObject("nonRegistrato", "Utente già registrato");
 		}
-
+		
+		return model;
 	}
-
 }

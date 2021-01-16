@@ -8,9 +8,9 @@ public class DBDAOFactory extends DAOFactory
 	{
 		try
 		{
-			Class.forName("org.postgresql.Driver").newInstance();
+			Class.forName("org.postgresql.Driver").getDeclaredConstructor().newInstance();
 
-			dataSource = new DataSource("jdbc:postgresql://127.0.0.1:5432/Revedia","postgres","Lovecraft"); // METTERE SERVER AWS
+			dataSource = new DataSource("jdbc:postgresql://localhost/RevediaDB","postgres","postgres"); // METTERE SERVER AWS
 
 		} catch (Exception e)
 		{

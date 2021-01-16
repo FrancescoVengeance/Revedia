@@ -17,21 +17,21 @@ import model.Movie;
 @Controller
 public class ReturnFilms
 {
-	@RequestMapping(value = "/Movies", method = RequestMethod.GET)
-	public void returnSongs(HttpServletResponse response) throws IOException, SQLException
-	{
-
-		MovieJDBC movieJDBC = DatabaseManager.getIstance().getDaoFactory().getMovieJDBC();
-
-		List<Movie> movies = movieJDBC.findAll();
-		if (movies.isEmpty())
-		{
-			response.getWriter().println("No films found!");
-			return;
-		}
-
-		/* JSON */
-
-	}
+//	@RequestMapping(value = "/Movies", method = RequestMethod.GET)
+//	public void returnSongs(HttpServletResponse response) throws IOException, SQLException
+//	{
+//
+//		MovieJDBC movieJDBC = DatabaseManager.getIstance().getDaoFactory().getMovieJDBC();
+//
+//		List<Movie> movies = movieJDBC.findAll();
+//		if (movies.isEmpty())
+//		{
+//			response.getWriter().println("No films found!");
+//			return;
+//		}
+//
+//		/* JSON */
+//
+//	}
 
 }

@@ -6,8 +6,8 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 
 @Configuration
-@ComponentScan({"controller"})
 @EnableWebMvc
+@ComponentScan({"controller"})
 public class RevediaConfiguration
 {
 	

@@ -17,21 +17,21 @@ import model.Song;
 @Controller
 public class ReturnSong
 {
-	@RequestMapping(value = "/Songs", method = RequestMethod.GET)
-	public void returnSongs(HttpServletResponse response) throws IOException, SQLException
-	{
-
-		SongJDBC songJDBC = DatabaseManager.getIstance().getDaoFactory().getSongJDBC();
-
-		List<Song> songs = songJDBC.findAll();
-		if (songs.isEmpty())
-		{
-			response.getWriter().println("No songs found!");
-			return;
-		}
-
-		/* JSON */
-
-	}
+//	@RequestMapping(value = "/Songs", method = RequestMethod.GET)
+//	public void returnSongs(HttpServletResponse response) throws IOException, SQLException
+//	{
+//
+//		SongJDBC songJDBC = DatabaseManager.getIstance().getDaoFactory().getSongJDBC();
+//
+//		List<Song> songs = songJDBC.findAll();
+//		if (songs.isEmpty())
+//		{
+//			response.getWriter().println("No songs found!");
+//			return;
+//		}
+//
+//		/* JSON */
+//
+//	}
 
 }

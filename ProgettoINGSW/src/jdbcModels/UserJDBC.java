@@ -7,6 +7,7 @@ import java.sql.SQLException;
 
 import daoInterfaces.UserDao;
 import model.User;
+import utilities.PasswordManager;
 import utilities.Permissions;
 
 public class UserJDBC implements UserDao
@@ -157,10 +158,11 @@ public class UserJDBC implements UserDao
 
 		while (result.next())
 		{
-			if (result.getString("passwd").equals(password))
+			if (password.equals(result.getString("passwd")))
 			{
 				statment.close();
 				result.close();
+				connection.close();
 				return true;
 			}
 		}
