@@ -3,7 +3,6 @@ package daoInterfaces;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import model.Book;
 import model.Movie;
 import model.MovieReview;
 

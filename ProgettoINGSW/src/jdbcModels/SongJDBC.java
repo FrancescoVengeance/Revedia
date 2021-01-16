@@ -10,7 +10,7 @@ import java.util.List;
 
 import daoInterfaces.SongDao;
 import model.Song;
-import utilities.Pair;
+import model.SongReview;
 
 public class SongJDBC implements SongDao
 {
@@ -163,54 +163,28 @@ public class SongJDBC implements SongDao
 	}
 
 	@Override
-	public List<Song> findAll() throws SQLException
-	{
-		Connection connection = this.dataSource.getConnection();
-
-		List<Song> songs = new ArrayList<>();
-
-		Song song = null;
-
-		String query = "select * from song";
-		PreparedStatement statement = connection.prepareStatement(query);
-		ResultSet result = statement.executeQuery();
-
-		while (result.next())
-		{
-			song = findByPrimaryKey(result.getString("name"), result.getInt("id"));
-			songs.add(song);
-		}
-
-		result.close();
-		connection.close();
-
-		return songs;
-	}
-
-	@Override
 	public ArrayList<SongReview> getReviews(Song song) throws SQLException
 	{
-		String query = "select users, song, album, numberofstars, description, postdate "
-				+ "from song_review "
+		String query = "select users, song, album, numberofstars, description, postdate " + "from song_review "
 				+ "where song = ? and album = ?";
-		
+
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, song.getName());
-		statment.setInt(2,song.getAlbumID());
-		
+		statment.setInt(2, song.getAlbumID());
+
 		ResultSet result = statment.executeQuery();
 		ArrayList<SongReview> reviews = new ArrayList<SongReview>();
-		while(result.next())
+		while (result.next())
 		{
 			reviews.add(buildSongReview(result));
 		}
-		
+
 		result.close();
 		statment.close();
-		
+
 		return reviews;
 	}
-	
+
 	private SongReview buildSongReview(ResultSet result) throws SQLException
 	{
 		String user = result.getString("users");
@@ -219,7 +193,7 @@ public class SongJDBC implements SongDao
 		short numberOfStars = result.getShort("numberofstars");
 		String description = result.getString("description");
 		Date postDate = result.getDate("postdate");
-		
+
 		SongReview review = new SongReview();
 		review.setUser(user);
 		review.setAlbumId(album);
@@ -227,50 +201,47 @@ public class SongJDBC implements SongDao
 		review.setNumberOfStars(numberOfStars);
 		review.setDescription(description);
 		review.setPostDate(postDate);
-		
+
 		return review;
 	}
 
 	@Override
-	public ArrayList<Song> searchByKeyWords(String keyWords,int limit, int offset) throws SQLException
+	public ArrayList<Song> searchByKeyWords(String keyWords, int limit, int offset) throws SQLException
 	{
 		String query = "select album.albumid, song.name as songname, album.name as albumname, song.users, song.rating"
-				+ " from song"
-				+ " inner join album"
-				+ " on song.album = album.albumid"
-				+ " where songname similar to ? or albumname similar to ?"
-				+ " limit ? offset ?";
-		
+				+ " from song" + " inner join album" + " on song.album = album.albumid"
+				+ " where songname similar to ? or albumname similar to ?" + " limit ? offset ?";
+
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, keyWords);
 		statment.setString(2, keyWords);
 		statment.setInt(3, limit);
 		statment.setInt(4, offset);
-		
+
 		ResultSet result = statment.executeQuery();
-		
+
 		ArrayList<Song> songs = new ArrayList<Song>();
-		while(result.next())
+		while (result.next())
 		{
 			String songName = result.getString("songname");
 			String albumName = result.getString("albumname");
 			int albumid = result.getInt("albumid");
 			String user = result.getString("users");
 			float rating = result.getFloat("rating");
-			
+
 			Song song = new Song();
 			song.setName(songName);
 			song.setAlbumID(albumid);
 			song.setAlbumName(albumName);
 			song.setUser(user);
 			song.setRating(rating);
-			
+
 			songs.add(song);
 		}
-		
+
 		result.close();
 		statment.close();
-		
+
 		return songs;
 	}
 
@@ -304,8 +275,8 @@ public class SongJDBC implements SongDao
 	public void updateReview(SongReview review) throws SQLException
 	{
 		String query = "update song_review set numberofstars = ?, description = ? "
-					 + "where users = ? and song = ? and album = ?";
-		
+				+ "where users = ? and song = ? and album = ?";
+
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setShort(1, review.getNumberOfStars());
 		statment.setString(2, review.getDescription());
@@ -314,5 +285,30 @@ public class SongJDBC implements SongDao
 		statment.setInt(5, review.getAlbumId());
 		statment.executeUpdate();
 		statment.close();
+	}
+
+	@Override
+	public List<Song> findAll() throws SQLException
+	{
+		Connection connection = this.dataSource.getConnection();
+
+		List<Song> songs = new ArrayList<>();
+
+		Song song = null;
+
+		String query = "select * from song";
+		PreparedStatement statement = connection.prepareStatement(query);
+		ResultSet result = statement.executeQuery();
+
+		while (result.next())
+		{
+			song = findByPrimaryKey(result.getString("name"), result.getInt("id"));
+			songs.add(song);
+		}
+
+		result.close();
+		connection.close();
+
+		return songs;
 	}
 }
