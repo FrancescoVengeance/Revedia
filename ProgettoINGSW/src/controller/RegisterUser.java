@@ -21,10 +21,9 @@ public class RegisterUser
 	}
 
 	@RequestMapping(value = "/Register", method = RequestMethod.POST)
-	public void UserRegister(@RequestParam("/nick") String nick, @RequestParam("/nome") String name,
-			@RequestParam("/cognome") String sur, @RequestParam("/mail") String mail,
-			@RequestParam("/tag pwd") String pwd) throws SQLException
+	public void UserRegister(@RequestParam("/nick") String nick, @RequestParam("/nome") String name,@RequestParam("/cognome") String sur, @RequestParam("/mail") String mail,@RequestParam("/tag pwd") String pwd) throws SQLException
 	{
+		
 
 		User user = new User(nick, name, sur, mail);
 
