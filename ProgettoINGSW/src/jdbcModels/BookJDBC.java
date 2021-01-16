@@ -184,15 +184,16 @@ public class BookJDBC implements BookDao
 
 	}
 
-	private static Book buildBook(ResultSet result) throws SQLException
+	private Book buildBook(ResultSet result) throws SQLException
 	{
 		String title = result.getString("title");
 		short numOfPages = result.getShort("numberofpages");
 		String description = result.getString("description");
 		String link = result.getString("link");
 		String publishingHouse = result.getString("publishinghouse");
-		String artist = result.getString("artist");
-		String genre = result.getString("genre");
+		String user = result.getString("users");
+		float rating = result.getFloat("rating");
+		Date postDate = result.getDate("postdate");
 
 		Book book = new Book();
 		book.setTitle(title);
@@ -200,8 +201,11 @@ public class BookJDBC implements BookDao
 		book.setDescription(description);
 		book.setLink(link);
 		book.setPublishingHouse(publishingHouse);
-		book.getAutors().add(artist);
-		book.getGenres().add(genre);
+		book.setUser(user);
+		book.setRating(rating);
+		book.setPostDate(postDate);
+		book.setAutors(getAutors(title));
+		book.setGenres(getGenres(title));
 
 		return book;
 	}
