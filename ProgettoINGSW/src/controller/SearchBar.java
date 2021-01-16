@@ -43,7 +43,7 @@ public class SearchBar
 	{
 
 		MovieJDBC movieJDBC = DatabaseManager.getIstance().getDaoFactory().getMovieJDBC();
-		Movie movie = movieJDBC.getMovie(title);
+		Movie movie = movieJDBC.findByPrimaryKey(title);
 
 		return movie;
 

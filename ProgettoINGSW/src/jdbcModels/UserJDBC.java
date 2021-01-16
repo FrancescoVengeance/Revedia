@@ -100,12 +100,14 @@ public class UserJDBC implements UserDao
 	@Override
 	public void deleteUser(String nickname) throws SQLException
 	{
+		Connection connection = this.dataSource.getConnection();
 
 		String query = "delete from users where nickname = ?";
 		PreparedStatement statement = connection.prepareStatement(query);
 		statement.setString(1, nickname);
 		statement.execute();
 		statement.close();
+		connection.close();
 	}
 
 	@Override
