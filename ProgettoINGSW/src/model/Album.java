@@ -60,5 +60,6 @@ public class Album
 	users varchar(20) not null,
 	rating real default 0,
 	postdate date not null default current_date,
+	artist varchar not null,
 	foreign key(users) references users(nickname) on delete cascade
 );*/

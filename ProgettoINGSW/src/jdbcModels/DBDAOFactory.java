@@ -31,12 +31,6 @@ public class DBDAOFactory extends DAOFactory
 	}
 
 	@Override
-	public ArtistJDBC getArtistJDBC()
-	{
-		return new ArtistJDBC(dataSource);
-	}
-
-	@Override
 	public BookJDBC getBookJDBC()
 	{
 		return new BookJDBC(dataSource);

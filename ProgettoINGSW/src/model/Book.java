@@ -11,19 +11,18 @@ public class Book
 	private String publishingHouse;
 	private String user;
 	private String link;
-	private ArrayList<String> autors;
+	private String artist;
 	private ArrayList<String> genres;
 	private float rating;
 	private Date postDate;
 	
 	public Book() 
 	{
-		this.autors = new ArrayList<String>();
 		this.genres = new ArrayList<String>();
 	}
 	
 	public Book(String title, short numberOfPages, String description, String publishingHouse, String user, 
-			String link, ArrayList<String> autors, ArrayList<String> genres)
+			String link, String artist, ArrayList<String> genres)
 	{
 		super();
 		this.title = title;
@@ -32,7 +31,7 @@ public class Book
 		this.publishingHouse = publishingHouse;
 		this.user = user;
 		this.link = link;
-		this.autors = autors;
+		this.artist = artist;
 		this.genres = genres;
 	}
 
@@ -55,8 +54,8 @@ public class Book
 	public String getLink() { return link;}
 	public void setLink(String link) { this.link = link; }
 
-	public ArrayList<String> getAutors() { return autors; }
-	public void setAutors(ArrayList<String> autors) { this.autors = autors; }
+	public String getArtist() { return artist; }
+	public void setArtist(String artist) { this.artist = artist; }
 
 	public ArrayList<String> getGenres() { return genres; }
 	public void setGenres(ArrayList<String> genres) { this.genres = genres; }
