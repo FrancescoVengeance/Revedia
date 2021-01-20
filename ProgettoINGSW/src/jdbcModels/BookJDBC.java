@@ -33,8 +33,7 @@ public class BookJDBC implements BookDao
 		Connection connection = this.dataSource.getConnection();
 
 		String query = "select title, numberOfPages, description, link, publishinghouse, users, rating, postdate, artist "
-				+ "from book " 
-				+ "where title = ?";
+				+ "from book " + "where title = ?";
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, title);
 		ResultSet result = statment.executeQuery();
@@ -62,10 +61,9 @@ public class BookJDBC implements BookDao
 	{
 		Connection connection = this.dataSource.getConnection();
 
-		String query = "select title, numberOfPages, description, link, publishinghouse, artist, genre " 
-					 + "from book "
-					 + "where publishinghouse = ?";
-		
+		String query = "select title, numberOfPages, description, link, publishinghouse, artist, genre " + "from book "
+				+ "where publishinghouse = ?";
+
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, publisher);
 		ResultSet result = statment.executeQuery();
@@ -93,9 +91,8 @@ public class BookJDBC implements BookDao
 	{
 		Connection connection = this.dataSource.getConnection();
 
-		String query = "select title, numberOfPages, description, link, publishinghouse, artist, genre " 
-					 + "from book "
-					 + "where artist = ?";
+		String query = "select title, numberOfPages, description, link, publishinghouse, artist, genre " + "from book "
+				+ "where artist = ?";
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, artist);
 		ResultSet result = statment.executeQuery();
@@ -124,8 +121,8 @@ public class BookJDBC implements BookDao
 		Connection connection = this.dataSource.getConnection();
 
 		String query = "update book set numberofpages = ?, description = ?, link = ?, publishinghouse = ?, artist = ?"
-					 + " where title = ?";
-		
+				+ " where title = ?";
+
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setShort(1, book.getNumberOfPages());
 		statment.setString(2, book.getDescription());
@@ -143,7 +140,7 @@ public class BookJDBC implements BookDao
 	{
 		Connection connection = this.dataSource.getConnection();
 
-		String query = "insert into book(title, numberofpages,description,link,publishingHouse,users, artist) values(?,?,?,?,?,?)";
+		String query = "insert into book(title, numberofpages,description,link,publishingHouse,users, artist) values(?,?,?,?,?,?,?)";
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, book.getTitle());
 		statment.setShort(2, book.getNumberOfPages());
@@ -153,6 +150,7 @@ public class BookJDBC implements BookDao
 		statment.setString(6, book.getUser());
 		statment.setString(7, book.getArtist());
 		statment.execute();
+
 		statment.close();
 
 		query = "insert into genre_book(genre, book) values (?,?)";
@@ -302,9 +300,7 @@ public class BookJDBC implements BookDao
 		Connection connection = this.dataSource.getConnection();
 
 		String query = "select title, numberOfPages, description, link, publishinghouse, users, rating, postdate, artist "
-				+ "from book " 
-				+ "where title similar to ? or artist similar to ? " 
-				+ "limit ? offset ?";
+				+ "from book " + "where title similar to ? or artist similar to ? " + "limit ? offset ?";
 
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, keyWords);
