@@ -33,9 +33,9 @@ public class AlbumJDBC implements AlbumDao
 	{
 		Connection connection = this.dataSource.getConnection();
 
-		String query = "select album.albumid, name, numberofsongs, releasedate, label, users, artist_album.artist "
-				+ "from album " + "inner join artist_album " + "on album.albumid = artist_album.album "
-				+ "where album.albumid = ?";
+		String query = "select album.albumid, name, numberofsongs, releasedate, label, users, artist "
+					 + "from album "
+					 + "where album.albumid = ?";
 
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setInt(1, id);
@@ -76,8 +76,8 @@ public class AlbumJDBC implements AlbumDao
 	public ArrayList<Album> getAlbums(String name) throws SQLException
 	{
 		Connection connection = this.dataSource.getConnection();
-		String query = "select album.albumid, name, numberofsongs, releasedate, label, users, artist_album.artist "
-				+ "from album " + "inner join artist_album " + "on album.albumid = artist_album.album "
+		String query = "select album.albumid, name, numberofsongs, releasedate, label, users, artist "
+				+ "from album "
 				+ "where name = ?";
 
 		PreparedStatement statment = connection.prepareStatement(query);
@@ -101,12 +101,13 @@ public class AlbumJDBC implements AlbumDao
 	{
 		Connection connection = this.dataSource.getConnection();
 
-		String query = "insert into album(name,releaseDate, label, users) values (?,?,?,?)";
+		String query = "insert into album(name,releaseDate, label, users, artist) values (?,?,?,?,?)";
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, album.getName());
 		statment.setDate(2, album.getReleaseDate());
 		statment.setString(3, album.getLabel());
 		statment.setString(4, userNickname);
+		statment.setString(5, album.getArtist());
 		statment.execute();
 		statment.close();
 		connection.close();
@@ -121,16 +122,17 @@ public class AlbumJDBC implements AlbumDao
 
 		Album album = null;
 
-		String query = "select * from album";
+		String query = "select albumid from album";
 		PreparedStatement statement = connection.prepareStatement(query);
 		ResultSet result = statement.executeQuery();
 		while (result.next())
 		{
-			album = getAlbum(result.getInt("id"));
+			album = getAlbum(result.getInt("albumid"));
 			albums.add(album);
 		}
 
 		result.close();
+		statement.close();
 		connection.close();
 
 		return albums;
@@ -141,8 +143,10 @@ public class AlbumJDBC implements AlbumDao
 	{
 		Connection connection = this.dataSource.getConnection();
 
-		String query = "select users, album, numberofStars, description, postdate " + "from album_review "
-				+ "where album = ?";
+		String query = "select users, album, numberofStars, description, postdate " 
+					 + "from album_review "
+					 + "where album = ?";
+		
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setInt(1, album.getId());
 		ResultSet result = statment.executeQuery();
@@ -184,8 +188,9 @@ public class AlbumJDBC implements AlbumDao
 		Connection connection = this.dataSource.getConnection();
 
 		String query = "select albumid, name, numberofsongs, releasedate, label, users, rating, postdate, artist "
-				+ "from album " + "inner join artist_album " + "on album.albumid = artist_album.album "
-				+ "where name similar to ? " + "limit ? offset ?";
+					 + "from album "
+					 + "where name similar to ? " 
+					 + "limit ? offset ?";
 
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, keyWords);
@@ -259,12 +264,15 @@ public class AlbumJDBC implements AlbumDao
 	{
 		Connection connection = this.dataSource.getConnection();
 
-		String query = "update album set name  = ?, releasedate = ?, label = ? where albumid = ?";
+		String query = "update album set name  = ?, releasedate = ?, label = ? , artist = ? "
+					 + "where albumid = ?";
+		
 		PreparedStatement statement = connection.prepareStatement(query);
 		statement.setString(1, album.getName());
 		statement.setDate(2, album.getReleaseDate());
 		statement.setString(3, album.getLabel());
 		statement.setInt(4, album.getId());
+		statement.setString(5, album.getArtist());
 		statement.executeUpdate();
 		statement.close();
 		connection.close();
@@ -289,7 +297,9 @@ public class AlbumJDBC implements AlbumDao
 		Connection connection = this.dataSource.getConnection();
 
 		String query = "select album.albumid, song.name as songname, album.name as albumname,"
-				+ " song.length, song.rating" + " from song" + " inner join album" + " on song.album = album.albumid"
+				+ " song.length, song.rating" 
+				+ " from song " 
+				+ " inner join album on song.album = album.albumid"
 				+ " where albumid = ?";
 		PreparedStatement statement = connection.prepareStatement(query);
 		statement.setInt(1, id);

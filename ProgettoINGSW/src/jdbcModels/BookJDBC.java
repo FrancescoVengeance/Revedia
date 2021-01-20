@@ -32,8 +32,9 @@ public class BookJDBC implements BookDao
 	{
 		Connection connection = this.dataSource.getConnection();
 
-		String query = "select title, numberOfPages, description, link, publishinghouse, users, rating, postdate "
-				+ "from book " + "where title = ?";
+		String query = "select title, numberOfPages, description, link, publishinghouse, users, rating, postdate, artist "
+				+ "from book " 
+				+ "where title = ?";
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, title);
 		ResultSet result = statment.executeQuery();
@@ -61,9 +62,10 @@ public class BookJDBC implements BookDao
 	{
 		Connection connection = this.dataSource.getConnection();
 
-		String query = "select title, numberOfPages, description, link, publishinghouse, artist, genre " + "from book "
-				+ "inner join artist_book on artist_book.book = book.title "
-				+ "inner join genre_book on genre_book.book = book.title " + "where publishinghouse = ?";
+		String query = "select title, numberOfPages, description, link, publishinghouse, artist, genre " 
+					 + "from book "
+					 + "where publishinghouse = ?";
+		
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, publisher);
 		ResultSet result = statment.executeQuery();
@@ -91,9 +93,9 @@ public class BookJDBC implements BookDao
 	{
 		Connection connection = this.dataSource.getConnection();
 
-		String query = "select title, numberOfPages, description, link, publishinghouse, artist, genre " + "from book "
-				+ "inner join artist_book on artist_book.book = book.title "
-				+ "inner join genre_book on genre_book.book = book.title " + "where artist = ?";
+		String query = "select title, numberOfPages, description, link, publishinghouse, artist, genre " 
+					 + "from book "
+					 + "where artist = ?";
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, artist);
 		ResultSet result = statment.executeQuery();
@@ -121,13 +123,16 @@ public class BookJDBC implements BookDao
 	{
 		Connection connection = this.dataSource.getConnection();
 
-		String query = "update book set numberofpages = ?, description = ?, link = ?, publishinghouse = ? where title = ?";
+		String query = "update book set numberofpages = ?, description = ?, link = ?, publishinghouse = ?, artist = ?"
+					 + " where title = ?";
+		
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setShort(1, book.getNumberOfPages());
 		statment.setString(2, book.getDescription());
 		statment.setString(3, book.getLink());
 		statment.setString(4, book.getPublishingHouse());
 		statment.setString(5, book.getTitle());
+		statment.setString(6, book.getArtist());
 		statment.executeUpdate();
 		statment.close();
 		connection.close();
@@ -138,7 +143,7 @@ public class BookJDBC implements BookDao
 	{
 		Connection connection = this.dataSource.getConnection();
 
-		String query = "insert into book(title, numberofpages,description,link,publishingHouse,users) values(?,?,?,?,?)";
+		String query = "insert into book(title, numberofpages,description,link,publishingHouse,users, artist) values(?,?,?,?,?,?)";
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, book.getTitle());
 		statment.setShort(2, book.getNumberOfPages());
@@ -146,17 +151,8 @@ public class BookJDBC implements BookDao
 		statment.setString(4, book.getLink());
 		statment.setString(5, book.getPublishingHouse());
 		statment.setString(6, book.getUser());
+		statment.setString(7, book.getArtist());
 		statment.execute();
-		statment.close();
-
-		query = "insert into artist_book(artist, book) values(?,?)";
-		statment = connection.prepareStatement(query);
-		for (String artist : book.getAutors())
-		{
-			statment.setString(1, artist);
-			statment.setString(2, book.getTitle());
-			statment.execute();
-		}
 		statment.close();
 
 		query = "insert into genre_book(genre, book) values (?,?)";
@@ -194,6 +190,7 @@ public class BookJDBC implements BookDao
 		String user = result.getString("users");
 		float rating = result.getFloat("rating");
 		Date postDate = result.getDate("postdate");
+		String artist = result.getString("artist");
 
 		Book book = new Book();
 		book.setTitle(title);
@@ -204,8 +201,8 @@ public class BookJDBC implements BookDao
 		book.setUser(user);
 		book.setRating(rating);
 		book.setPostDate(postDate);
-		book.setAutors(getAutors(title));
 		book.setGenres(getGenres(title));
+		book.setArtist(artist);
 
 		return book;
 	}
@@ -219,7 +216,7 @@ public class BookJDBC implements BookDao
 
 		Book book = null;
 
-		String query = "select * from book";
+		String query = "select title from book";
 		PreparedStatement statement = connection.prepareStatement(query);
 		ResultSet result = statement.executeQuery();
 		while (result.next())
@@ -255,29 +252,6 @@ public class BookJDBC implements BookDao
 		connection.close();
 
 		return genres;
-	}
-
-	private ArrayList<String> getAutors(String title) throws SQLException
-	{
-		Connection connection = this.dataSource.getConnection();
-
-		String query = "select artist from artist_book where book = ?";
-		PreparedStatement statment = connection.prepareStatement(query);
-		statment.setString(1, title);
-
-		ResultSet result = statment.executeQuery();
-		ArrayList<String> autors = new ArrayList<String>();
-
-		while (result.next())
-		{
-			autors.add(result.getString("artist"));
-		}
-
-		statment.close();
-		result.close();
-		connection.close();
-
-		return autors;
 	}
 
 	@Override
@@ -327,13 +301,16 @@ public class BookJDBC implements BookDao
 	{
 		Connection connection = this.dataSource.getConnection();
 
-		String query = "select title, numberOfPages, description, link, publishinghouse, users, rating, postdate "
-				+ "from book " + "where title similar to ? " + "limit ? offset ?";
+		String query = "select title, numberOfPages, description, link, publishinghouse, users, rating, postdate, artist "
+				+ "from book " 
+				+ "where title similar to ? or artist similar to ? " 
+				+ "limit ? offset ?";
 
 		PreparedStatement statment = connection.prepareStatement(query);
 		statment.setString(1, keyWords);
-		statment.setInt(2, limit);
-		statment.setInt(3, offset);
+		statment.setString(2, keyWords);
+		statment.setInt(3, limit);
+		statment.setInt(4, offset);
 
 		ResultSet result = statment.executeQuery();
 

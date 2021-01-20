@@ -18,8 +18,6 @@ public abstract class DAOFactory
 
 	public abstract AlbumJDBC getAlbumJDBC();
 
-	public abstract ArtistJDBC getArtistJDBC();
-
 	public abstract BookJDBC getBookJDBC();
 
 	public abstract SongJDBC getSongJDBC();
