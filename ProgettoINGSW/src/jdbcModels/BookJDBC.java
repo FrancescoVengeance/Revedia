@@ -150,7 +150,6 @@ public class BookJDBC implements BookDao
 		statment.setString(6, book.getUser());
 		statment.setString(7, book.getArtist());
 		statment.execute();
-
 		statment.close();
 
 		query = "insert into genre_book(genre, book) values (?,?)";
