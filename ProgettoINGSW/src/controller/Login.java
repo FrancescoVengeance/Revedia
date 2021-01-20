@@ -1,17 +1,19 @@
 package controller;
 
 import java.sql.SQLException;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+
 import database.DatabaseManager;
 import model.User;
 import utilities.PasswordManager;
 
 @Controller
 public class Login
-{	
+{
 	@PostMapping("/loginUser")
 	public ModelAndView loginUser(@RequestParam("nickname") String nickname, @RequestParam("password") String password)
 	{
@@ -19,31 +21,29 @@ public class Login
 		try
 		{
 			String MD5Password = PasswordManager.getMD5(password);
-			if(DatabaseManager.getIstance().getDaoFactory().getUserJDBC().validateLogin(MD5Password, nickname))
+			if (DatabaseManager.getIstance().getDaoFactory().getUserJDBC().validateLogin(MD5Password, nickname))
 			{
 				model.setViewName("second.jsp");
 				model.addObject("nickname", nickname);
-			}
-			else
+			} else
 			{
 				model.setViewName("register.jsp");
 			}
-		} 
-		catch (SQLException e)
+		} catch (SQLException e)
 		{
 			e.printStackTrace();
 		}
-		
+
 		return model;
 	}
-	
+
 	@PostMapping("/register")
 	public ModelAndView register(@RequestParam("nickname") String nickname, @RequestParam("nome") String firstName,
-								 @RequestParam("cognome") String lastName, @RequestParam("mail") String mail,
-								 @RequestParam("password") String password)
+			@RequestParam("cognome") String lastName, @RequestParam("mail") String mail,
+			@RequestParam("password") String password)
 	{
 		ModelAndView model = new ModelAndView();
-		
+
 		User user = new User();
 		user.setFirstName(firstName);
 		user.setLastName(lastName);
@@ -56,15 +56,14 @@ public class Login
 			model.setViewName("second.jsp");
 			model.addObject("nickname", nickname);
 			System.out.println("utente registrato");
-			
-		} 
-		catch (SQLException e)
+
+		} catch (SQLException e)
 		{
 			e.printStackTrace();
 			model.setViewName("register.jsp");
 			model.addObject("nonRegistrato", "Utente già registrato");
 		}
-		
+
 		return model;
 	}
 }
